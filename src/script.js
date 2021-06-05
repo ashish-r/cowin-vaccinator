@@ -1,9 +1,20 @@
 (function () {
   const mobileNo = 8013904843;
-  const autoBook = true;
-  const pin = '';
-  const eighteenPlusOnly = false;
+  const autoBook = false;
+  let currentPinIndex = 0;
+  let currentSlotIndex = 0;
+  const pin = '800008';
+  const eighteenPlusOnly = true;
+
+  const isCovishield = true;
+  const isCovaxin = true;
+  const isSputnik = true;
+
+  const isFreeOnly = true;
+
   let previousSchedulerCancel;
+
+  let allSlots = [];
 
   const [startTitleFlash, clearTitleFlash] = (() => {
     const originalPageTitle = document.title;
@@ -68,32 +79,46 @@
     }, 100);
   }
 
-  function selectState() {
-    if (!window.location.pathname.includes('appointment')) {
-      setTimeout(selectState, 100);
+  function searchByPin() {
+    const searchType = document.querySelector("input[formcontrolname='searchType']");
+    if (searchType && searchType.checked) {
+      searchType.click();
+      setTimeout(searchByPin, 100);
       return;
     }
+    const pinInput = document.querySelector("input[formcontrolname='pincode']");
+    const pinArr = pin.split(',');
+    setTimeout(() => {
+      pinInput.value = pinArr[currentPinIndex].trim();
+      pinInput.dispatchEvent(new KeyboardEvent('input', {}));
+      console.log('pin', pinArr[currentPinIndex]);
+      filterSlots();
+      currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
+    }, 100);
+  }
+
+  function selectState() {
     const searchType = document.querySelector("input[formcontrolname='searchType']");
     if (searchType && !searchType.checked) {
       searchType.click();
       setTimeout(selectState, 100);
+      return;
+    }
+    const stateField = document.querySelector("mat-select[formcontrolname='state_id']");
+    if (stateField) {
+      stateField.click();
+      setTimeout(() => {
+        const option = document.querySelector("mat-option[id='mat-option-21']");
+        if (option) {
+          console.log('state selected');
+          option.click();
+          districtSelection();
+        } else {
+          setTimeout(selectState, 100);
+        }
+      }, 100);
     } else {
-      const stateField = document.querySelector("mat-select[formcontrolname='state_id']");
-      if (stateField) {
-        stateField.click();
-        setTimeout(() => {
-          const option = document.querySelector("mat-option[id='mat-option-21']");
-          if (option) {
-            console.log('state selected');
-            option.click();
-            districtSelection();
-          } else {
-            setTimeout(selectState, 100);
-          }
-        }, 100);
-      } else {
-        setTimeout(selectState, 100);
-      }
+      setTimeout(selectState, 100);
     }
   }
 
@@ -103,7 +128,7 @@
     input.dispatchEvent(new KeyboardEvent('input', {}));
     input.blur();
     console.log('mobile number submit');
-    document.getElementsByTagName('ion-button')[0].click();
+    document.querySelector('ion-button.login-btn').click();
     enterOtp();
   }
 
@@ -135,14 +160,71 @@
   }
 
   function locationDetails() {
-    if (!pin.trim()) selectState();
+    if (!window.location.pathname.includes('appointment')) {
+      setTimeout(locationDetails, 100);
+      return;
+    }
+    if (pin.trim()) {
+      searchByPin();
+    } else {
+      selectState();
+    }
   }
 
-  function apply18plus() {
-    return waitForNode(() => document.querySelector("input[id='c1']")).then((btn) => {
-      console.log('applied 18plus filter');
-      document.querySelector("input[id='c1']").click();
-    });
+  async function selectVaccineType() {
+    if (isCovaxin && isCovishield && isSputnik) {
+      return;
+    }
+    if (isCovaxin) {
+      const button = await waitForNode(() => document.querySelector("input[id='c3']"));
+      console.log('covishield selected');
+      button.click();
+    }
+    if (isCovishield) {
+      const button = await waitForNode(() => document.querySelector("input[id='c4']"));
+      console.log('covishield selected');
+      button.click();
+    }
+    if (isSputnik) {
+      const button = await waitForNode(() => document.querySelector("input[id='c5']"));
+      console.log('covishield selected');
+      button.click();
+    }
+  }
+
+  async function selectFreeOrPaid() {
+    if (isFreeOnly === null) {
+      return;
+    }
+  }
+
+  async function apply18plus() {
+    const button = await waitForNode(() => document.querySelector("input[id='c1']"));
+    console.log('applied 18plus filter');
+    button.click();
+  }
+
+  async function apply45plus() {
+    const button = await waitForNode(() => document.querySelector("input[id='c2']"));
+    console.log('applied 18plus filter');
+    button.click();
+  }
+
+  async function book() {
+    const timeSlots = await waitForNode(() => document.querySelectorAll('ion-button.time-slot'));
+    timeSlots[Math.floor(timeSlots.length / 2)].click();
+    if (autoBook) {
+      console.log('book clicked');
+      const bookButton = await waitForNode(() => document.querySelector("ion-button.confirm-btn[type='submit']"));
+      bookButton.click();
+    }
+  }
+
+  function selectSlot() {
+    allSlots[currentSlotIndex].node.click();
+    console.log('selected ', allSlots[currentSlotIndex].name);
+    currentSlotIndex = currentSlotIndex < allSlots.length - 1 ? currentSlotIndex + 1 : 0;
+    book();
   }
 
   async function filterSlots() {
@@ -157,33 +239,58 @@
     console.log('response Received');
     if (eighteenPlusOnly) {
       await apply18plus();
+    } else {
+      await apply45plus();
     }
+    await selectVaccineType();
+
+    await selectFreeOrPaid();
 
     setTimeout(() => {
       console.log('response filter');
-      const centerNames = [];
+      allSlots = [];
       const option = table.getElementsByTagName('mat-list-option');
       [...option].forEach((row) => {
-        if (
-          ![...row.querySelectorAll('.vaccine-box,.vaccine-box1,.vaccine-padding')].filter(
-            (node) => !(node.getAttribute('tooltip') || node.getElementsByTagName('a')[0].text.includes('Booked'))
-          ).length
-        ) {
+        const toRemove = [...row.querySelectorAll('.vaccine-box,.vaccine-box1,.vaccine-padding')].filter(
+          (node) => node.getAttribute('tooltip') || node.getElementsByTagName('a')[0].text.includes('Booked')
+        );
+        toRemove.forEach((node) => node.remove());
+        const availableSlots = row.querySelectorAll('.vaccine-box,.vaccine-box1,.vaccine-padding');
+        if (!availableSlots.length) {
           row.remove();
         } else {
-          centerNames.push(row.querySelector('.center-name-title').textContent);
+          [...availableSlots].forEach((node) =>
+            allSlots.push({
+              name: row.querySelector('.center-name-title').textContent,
+              node,
+              count: (node.textContent || '').trim().split(' ')[0],
+            })
+          );
         }
       });
-      if (!option.length) {
-        setTimeout(() => {
-          console.log('searching again');
-          if (!pin.trim()) filterSlots();
-        }, 3000);
-      } else {
+
+      if (allSlots.length) {
+        allSlots.sort((a, b) => +b.count - +a.count);
+        console.log(allSlots);
+
+        selectSlot();
         searchButton.scrollIntoView();
         console.log('Trigger Notification');
-        showNotification(centerNames.join(', '), '');
+        showNotification([...new Set(allSlots.map(({ name }) => name))].join(', '), '');
+        return;
       }
+      setTimeout(() => {
+        console.log('searching again');
+        if (window.location.pathname === '/') {
+          enterMobile();
+          return;
+        }
+        if (pin.trim()) {
+          searchByPin();
+        } else {
+          filterSlots();
+        }
+      }, 3000);
     }, 100);
   }
 
@@ -199,18 +306,15 @@
     };
 
     startTitleFlash(type);
-    const url = window.chrome && window.chrome.extension && window.chrome.extension.getURL('alert.mp3');
-    if (url) {
-      const audio = new Audio();
-      audio
-        .play()
-        .then(function () {
-          // Automatic playback started!
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    }
+    const audio = new Audio('https://github.com/ashish-r/cowin-vaccinator/blob/main/src/alert.mp3?raw=true');
+    audio
+      .play()
+      .then(function () {
+        console.log('audio alert');
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
   function waitForNode(finder) {
