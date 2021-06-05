@@ -1,5 +1,11 @@
 {
   "name": "CoWIN: Vaccinator 💉",
   "version": "1.0",
-  "manifest_version": 2
+  "manifest_version": 2,
+  "content_scripts": [
+    {
+      "matches": ["https://selfregistration.cowin.gov.in/*"],
+      "js": ["src/script.js"]
+    }
+  ]
 }

@@ -2,8 +2,10 @@
   const mobileNo = 8013904843;
   const autoBook = true;
   const pin = '';
+  const eighteenPlusOnly = false;
+  let previousSchedulerCancel;
 
-  const [startTitleFlash, clearTitleFlash] = () => {
+  const [startTitleFlash, clearTitleFlash] = (() => {
     const originalPageTitle = document.title;
     let interval1;
     let interval2;
@@ -25,11 +27,11 @@
     };
 
     return [titleFlashFunction, clearIntervals];
-  };
+  })();
 
   const logoutTimer = 870000; // 14.5 * 60000
   setTimeout(() => {
-    waitForNode(() => document.getElementsByClassName('navigation logout-text')[0])[0].then((logoutButton) => {
+    waitForNode(() => document.getElementsByClassName('navigation logout-text')[0]).then((logoutButton) => {
       logoutButton.click();
       window.location.reload();
     });
@@ -53,7 +55,7 @@
   }
 
   function districtSelection() {
-    document.querySelector("mat-select[formcontrolname='district_id']")?.click();
+    document.querySelector("mat-select[formcontrolname='district_id']").click();
     setTimeout(() => {
       const option = document.querySelector("mat-option[id='mat-option-53']");
       if (option) {
@@ -68,11 +70,13 @@
 
   function selectState() {
     if (!window.location.pathname.includes('appointment')) {
+      setTimeout(selectState, 100);
       return;
     }
     const searchType = document.querySelector("input[formcontrolname='searchType']");
     if (searchType && !searchType.checked) {
       searchType.click();
+      setTimeout(selectState, 100);
     } else {
       const stateField = document.querySelector("mat-select[formcontrolname='state_id']");
       if (stateField) {
@@ -94,7 +98,7 @@
   }
 
   async function enterMobile() {
-    const input = await waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']"))[0];
+    const input = await waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']"));
     input.value = mobileNo;
     input.dispatchEvent(new KeyboardEvent('input', {}));
     input.blur();
@@ -104,7 +108,7 @@
   }
 
   async function enterOtp() {
-    const otpInput = await waitForNode(() => document.querySelector("input[formcontrolname='otp']"))[0];
+    const otpInput = await waitForNode(() => document.querySelector("input[formcontrolname='otp']"));
 
     otpInput.addEventListener('input', () => {
       if (otpInput.value.length === 6) {
@@ -114,19 +118,17 @@
       }
     });
   }
-
-  let previousSchedulerCancel;
   async function scheduleClick() {
     if (previousSchedulerCancel) {
       previousSchedulerCancel();
     }
-    const [scheduleButtonPromise, scheduleButtonPromiseReject] = waitForNode(
+    const scheduleButtonPromise = waitForNode(
       () =>
         !document.getElementsByTagName('ion-spinner').length &&
         document.querySelector("img[src='assets/images/calndericon.svg']")
     );
-    previousSchedulerCancel = scheduleButtonPromiseReject;
-    await scheduleButtonPromise;
+    previousSchedulerCancel = scheduleButtonPromise.cancel;
+    const scheduleButton = await scheduleButtonPromise;
     console.log('schedule button clicked');
     scheduleButton.click();
     locationDetails();
@@ -137,20 +139,25 @@
   }
 
   function apply18plus() {
-    return waitForNode(() => document.querySelector("input[id='c1']"))[0].then((btn) => {
+    return waitForNode(() => document.querySelector("input[id='c1']")).then((btn) => {
       console.log('applied 18plus filter');
       document.querySelector("input[id='c1']").click();
     });
   }
 
   async function filterSlots() {
+    if (window.location.pathname === '/') {
+      enterMobile();
+    }
     console.log('filterSlots');
-    const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0])[0];
+    const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0]);
     searchButton.click();
 
-    const table = await waitForNode(() => document.getElementsByTagName('mat-selection-list')?.[0])[0];
+    const table = await waitForNode(() => document.getElementsByTagName('mat-selection-list')[0]);
     console.log('response Received');
-    await apply18plus();
+    if (eighteenPlusOnly) {
+      await apply18plus();
+    }
 
     setTimeout(() => {
       console.log('response filter');
@@ -180,7 +187,7 @@
     }, 100);
   }
 
-  function showNotification(type, centers) {
+  function showNotification(centers, type) {
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
     const body = `${type} available at ${centers}.${autoBook ? '' : 'Click On Submit Now!!!'}`;
@@ -191,28 +198,39 @@
       clearTitleFlash();
     };
 
-    startTitleFlash();
-    const audio = new Audio('./alert.wav');
-    audio.play();
+    startTitleFlash(type);
+    const url = window.chrome && window.chrome.extension && window.chrome.extension.getURL('alert.mp3');
+    if (url) {
+      const audio = new Audio();
+      audio
+        .play()
+        .then(function () {
+          // Automatic playback started!
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
   }
 
-  async function waitForNode(finder) {
+  function waitForNode(finder) {
     let promiseReject;
     let interval;
     const waitPromise = new Promise((resolve, reject) => {
       promiseReject = reject;
       interval = setInterval(() => {
         const node = finder();
-        if (resolve) {
+        if (node) {
           clearInterval(interval);
           resolve(node);
         }
       }, 100);
     });
     const cancelWait = () => {
-      promiseReject();
+      promiseReject('cancelled');
       clearInterval(interval);
     };
-    return [waitPromise, cancelWait];
+    waitPromise.cancel = cancelWait;
+    return waitPromise;
   }
 })();
