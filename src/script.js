@@ -1,16 +1,27 @@
-(function () {
-  const mobileNo = 8013904843;
-  const autoBook = false;
+let vaccinatorFormData = {
+  start: true,
+};
+(async function () {
+  vaccinatorFormData = {
+    ...vaccinatorFormData,
+    ...(await getData()),
+  };
+  const {
+    mobileNo,
+    autoBook,
+    pin,
+    eighteenPlusOnly,
+    isCovishield,
+    isCovaxin,
+    isSputnik,
+    isFreeOnly,
+    state,
+    district,
+    start,
+  } = vaccinatorFormData;
+
   let currentPinIndex = 0;
   let currentSlotIndex = 0;
-  const pin = '800008';
-  const eighteenPlusOnly = true;
-
-  const isCovishield = true;
-  const isCovaxin = true;
-  const isSputnik = true;
-
-  const isFreeOnly = true;
 
   let previousSchedulerCancel;
 
@@ -20,9 +31,9 @@
     const originalPageTitle = document.title;
     let interval1;
     let interval2;
-    const titleFlashFunction = (type) => {
+    const titleFlashFunction = () => {
       interval1 = setInterval(() => {
-        document.title = `CoWIN: Vaccinator 💉 ${type} found`;
+        document.title = `CoWIN: Vaccinator 💉 vaccines found`;
       }, 1000);
       setTimeout(() => {
         interval2 = setInterval(() => {
@@ -45,6 +56,15 @@
     waitForNode(() => document.getElementsByClassName('navigation logout-text')[0]).then((logoutButton) => {
       logoutButton.click();
       window.location.reload();
+      const title = 'CoWIN: Vaccinator 💉 Login Again';
+      const icon = 'image-url';
+      const body = `Please enter OTP to login again'}`;
+      const notification = new Notification(title, { body, icon });
+      notification.onclick = () => {
+        notification.close();
+        window.parent.focus();
+        clearTitleFlash();
+      };
     });
   }, logoutTimer);
 
@@ -52,7 +72,18 @@
     Notification.requestPermission();
   }
 
-  scheduleEvent();
+  if (
+    start &&
+    mobileNo &&
+    eighteenPlusOnly !== null &&
+    eighteenPlusOnly !== undefined &&
+    (pin || (state && district))
+  ) {
+    scheduleEvent();
+  } else {
+    console.log('Collecting form data for CoWIN: Vaccinator 💉');
+    collectData();
+  }
 
   function scheduleEvent() {
     const currentPath = window.location.pathname;
@@ -60,9 +91,108 @@
       locationDetails();
     } else if (currentPath.includes('dashboard')) {
       scheduleClick();
-    } else {
+    } else if (currentPath === '/') {
       enterMobile();
+    } else {
+      setTimeout(scheduleEvent, 100);
     }
+  }
+
+  async function collectData() {
+    waitForNode(() => document.querySelector("input[formcontrolname='pincode']")).then((pinInput) => {
+      pinInput.addEventListener('change', (e) => {
+        vaccinatorFormData.pin = e.target.value;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Pin: ', vaccinatorFormData.pin);
+      });
+    });
+
+    waitForNode(() => document.querySelector("mat-select[formcontrolname='state_id']")).then((stateField) => {
+      stateField.addEventListener('click', async () => {
+        const options = await waitForNode(() => document.querySelector("div[role='listbox']"));
+        options.addEventListener('click', (e) => {
+          vaccinatorFormData.state = (e.target.textContent || '').trim();
+          saveData();
+          console.log('CoWIN: Vaccinator 💉 State: ', vaccinatorFormData.state);
+        });
+      });
+    });
+
+    waitForNode(() => document.querySelector("mat-select[formcontrolname='district_id']")).then((districtField) => {
+      districtField.addEventListener('click', async () => {
+        const options = await waitForNode(() => document.querySelector("div[role='listbox']"));
+        options.addEventListener('click', (e) => {
+          vaccinatorFormData.district = (e.target.textContent || '').trim();
+          saveData();
+          console.log('CoWIN: Vaccinator 💉 District: ', vaccinatorFormData.district);
+        });
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c1']")).then((age18Button) => {
+      age18Button.addEventListener('change', (e) => {
+        vaccinatorFormData.eighteenPlusOnly = e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 18+: ', vaccinatorFormData.eighteenPlusOnly);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c2']")).then((age45Button) => {
+      age45Button.addEventListener('change', (e) => {
+        vaccinatorFormData.eighteenPlusOnly = !e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 18+: ', vaccinatorFormData.eighteenPlusOnly);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c3']")).then((covishieldButton) => {
+      covishieldButton.addEventListener('change', (e) => {
+        vaccinatorFormData.isCovishield = e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Covishield: ', vaccinatorFormData.isCovishield);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c4']")).then((covaxinButton) => {
+      covaxinButton.addEventListener('change', (e) => {
+        vaccinatorFormData.isCovaxin = e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Covaxin: ', vaccinatorFormData.isCovaxin);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c5']")).then((sputnikButton) => {
+      sputnikButton.addEventListener('change', (e) => {
+        vaccinatorFormData.isSputnik = e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Sputnik: ', vaccinatorFormData.isSputnik);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c6']")).then((paidButton) => {
+      paidButton.addEventListener('change', (e) => {
+        vaccinatorFormData.isFreeOnly = !e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Free Only: ', vaccinatorFormData.isFreeOnly);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='c7']")).then((freeButton) => {
+      freeButton.addEventListener('change', (e) => {
+        vaccinatorFormData.isFreeOnly = e.target.checked;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Free Only: ', vaccinatorFormData.isFreeOnly);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']")).then((mobileInput) => {
+      console.log('CoWIN: Vaccinator 💉 watching mobile field');
+      mobileInput.addEventListener('change', (e) => {
+        vaccinatorFormData.mobile = e.target.value;
+        saveData();
+        console.log('CoWIN: Vaccinator 💉 Mobile: ', vaccinatorFormData.mobile);
+      });
+    });
   }
 
   function districtSelection() {
@@ -176,24 +306,24 @@
       return;
     }
     if (isCovaxin) {
-      const button = await waitForNode(() => document.querySelector("input[id='c3']"));
-      console.log('covishield selected');
+      const button = await waitForNode(() => document.querySelector("input[id='c4']"));
+      console.log('Covaxin selected');
       button.click();
     }
     if (isCovishield) {
-      const button = await waitForNode(() => document.querySelector("input[id='c4']"));
-      console.log('covishield selected');
+      const button = await waitForNode(() => document.querySelector("input[id='c3']"));
+      console.log('Covishield selected');
       button.click();
     }
     if (isSputnik) {
       const button = await waitForNode(() => document.querySelector("input[id='c5']"));
-      console.log('covishield selected');
+      console.log('Sputnik selected');
       button.click();
     }
   }
 
   async function selectFreeOrPaid() {
-    if (isFreeOnly === null) {
+    if (isFreeOnly === null || isFreeOnly === undefined) {
       return;
     }
   }
@@ -297,7 +427,7 @@
   function showNotification(centers, type) {
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
-    const body = `${type} available at ${centers}.${autoBook ? '' : 'Click On Submit Now!!!'}`;
+    const body = `Vaccines available at ${centers}.${autoBook ? '' : 'Click On Submit Now!!!'}`;
     const notification = new Notification(title, { body, icon });
     notification.onclick = () => {
       notification.close();
@@ -305,7 +435,7 @@
       clearTitleFlash();
     };
 
-    startTitleFlash(type);
+    startTitleFlash();
     const audio = new Audio('https://github.com/ashish-r/cowin-vaccinator/blob/main/src/alert.mp3?raw=true');
     audio
       .play()
@@ -315,6 +445,29 @@
       .catch(function (error) {
         console.log(error);
       });
+  }
+
+  function saveData() {
+    if (window.chrome && window.chrome.storage.sync.set) {
+      window.chrome.storage.sync.set({ cowinVaccinatorData: JSON.stringify(vaccinatorFormData) });
+    } else if (window.localStorage && window.localStorage.setItem) {
+      window.localStorage.setItem('cowinVaccinatorData', JSON.stringify(vaccinatorFormData));
+    }
+  }
+
+  function getData() {
+    return new Promise((resolve) => {
+      let data = '{}';
+      if (window.chrome && window.chrome.storage.sync.set) {
+        window.chrome.storage.sync.get('cowinVaccinatorData', (chromeStoragedata) => {
+          resolve(JSON.parse(chromeStoragedata.cowinVaccinatorData || data));
+        });
+        return;
+      } else if (window.localStorage && window.localStorage.getItem) {
+        data = window.localStorage.getItem('cowinVaccinatorData') || data;
+      }
+      resolve(JSON.parse(data));
+    });
   }
 
   function waitForNode(finder) {

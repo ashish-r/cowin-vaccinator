@@ -7,5 +7,8 @@
       "matches": ["https://selfregistration.cowin.gov.in/*"],
       "js": ["src/script.js", "src/ui.js"]
     }
+  ],
+  "permissions": [
+    "storage"
   ]
 }
