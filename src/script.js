@@ -101,9 +101,7 @@ let vaccinatorFormData = {
   async function collectData() {
     waitForNode(() => document.querySelector("input[formcontrolname='pincode']")).then((pinInput) => {
       pinInput.addEventListener('change', (e) => {
-        vaccinatorFormData.pin = e.target.value;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Pin: ', vaccinatorFormData.pin);
+        setVaccinatorFormData('pin', e.target.value);
       });
     });
 
@@ -111,9 +109,7 @@ let vaccinatorFormData = {
       stateField.addEventListener('click', async () => {
         const options = await waitForNode(() => document.querySelector("div[role='listbox']"));
         options.addEventListener('click', (e) => {
-          vaccinatorFormData.state = (e.target.textContent || '').trim();
-          saveData();
-          console.log('CoWIN: Vaccinator 💉 State: ', vaccinatorFormData.state);
+          setVaccinatorFormData('state', (e.target.textContent || '').trim());
         });
       });
     });
@@ -122,75 +118,57 @@ let vaccinatorFormData = {
       districtField.addEventListener('click', async () => {
         const options = await waitForNode(() => document.querySelector("div[role='listbox']"));
         options.addEventListener('click', (e) => {
-          vaccinatorFormData.district = (e.target.textContent || '').trim();
-          saveData();
-          console.log('CoWIN: Vaccinator 💉 District: ', vaccinatorFormData.district);
+          setVaccinatorFormData('district', (e.target.textContent || '').trim());
         });
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c1']")).then((age18Button) => {
       age18Button.addEventListener('change', (e) => {
-        vaccinatorFormData.eighteenPlusOnly = e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 18+: ', vaccinatorFormData.eighteenPlusOnly);
+        setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c2']")).then((age45Button) => {
       age45Button.addEventListener('change', (e) => {
-        vaccinatorFormData.eighteenPlusOnly = !e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 18+: ', vaccinatorFormData.eighteenPlusOnly);
+        setVaccinatorFormData('eighteenPlusOnly', !e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c3']")).then((covishieldButton) => {
       covishieldButton.addEventListener('change', (e) => {
-        vaccinatorFormData.isCovishield = e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Covishield: ', vaccinatorFormData.isCovishield);
+        setVaccinatorFormData('isCovishield', e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c4']")).then((covaxinButton) => {
       covaxinButton.addEventListener('change', (e) => {
-        vaccinatorFormData.isCovaxin = e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Covaxin: ', vaccinatorFormData.isCovaxin);
+        setVaccinatorFormData('isCovaxin', e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c5']")).then((sputnikButton) => {
       sputnikButton.addEventListener('change', (e) => {
-        vaccinatorFormData.isSputnik = e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Sputnik: ', vaccinatorFormData.isSputnik);
+        setVaccinatorFormData('isSputnik', e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c6']")).then((paidButton) => {
       paidButton.addEventListener('change', (e) => {
-        vaccinatorFormData.isFreeOnly = !e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Free Only: ', vaccinatorFormData.isFreeOnly);
+        setVaccinatorFormData('isFreeOnly', !e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c7']")).then((freeButton) => {
       freeButton.addEventListener('change', (e) => {
-        vaccinatorFormData.isFreeOnly = e.target.checked;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Free Only: ', vaccinatorFormData.isFreeOnly);
+        setVaccinatorFormData('isFreeOnly', e.target.checked);
       });
     });
 
     waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']")).then((mobileInput) => {
       console.log('CoWIN: Vaccinator 💉 watching mobile field');
       mobileInput.addEventListener('change', (e) => {
-        vaccinatorFormData.mobile = e.target.value;
-        saveData();
-        console.log('CoWIN: Vaccinator 💉 Mobile: ', vaccinatorFormData.mobile);
+        setVaccinatorFormData('mobile', e.target.value);
       });
     });
   }
@@ -445,6 +423,12 @@ let vaccinatorFormData = {
       .catch(function (error) {
         console.log(error);
       });
+  }
+
+  function setVaccinatorFormData(key, value) {
+    vaccinatorFormData[key] = value;
+    saveData();
+    console.log(`CoWIN: Vaccinator 💉 ${District}: `, value);
   }
 
   function saveData() {
