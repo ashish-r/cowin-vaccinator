@@ -1,0 +1,28 @@
+{
+  "name": "cowin-vaccinator",
+  "version": "1.0.0",
+  "description": "CoWIN: Vaccinator 💉",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashish-r/cowin-vaccinator.git"
+  },
+  "keywords": [
+    "cowin",
+    "covid-19",
+    "covid vaccine",
+    "javascript",
+    "browser extension",
+    "cowin automation",
+    "chrome extension"
+  ],
+  "author": "Ashish Ranjan",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ashish-r/cowin-vaccinator/issues"
+  },
+  "homepage": "https://github.com/ashish-r/cowin-vaccinator#readme"
+}
