@@ -633,6 +633,18 @@ let vaccinatorFormData = {};
 
     container.appendChild(hr.cloneNode());
 
+    createCheckbox(
+      'vaciinator-isFreeOnly-checkbox',
+      vaccinatorFormData.isFreeOnly,
+      'Only Free Vaccines:',
+      container,
+      (value) => {
+        vaccinatorFormData.isFreeOnly = value;
+      }
+    );
+
+    container.appendChild(hr.cloneNode());
+
     const submitButton = button.cloneNode();
     submitButton.appendChild(
       document.createTextNode(vaccinatorFormData.start ? 'Stop Automated Script' : 'Start Automated Script')
