@@ -200,8 +200,14 @@ let vaccinatorFormData = {
       pinInput.value = pinArr[currentPinIndex].trim();
       pinInput.dispatchEvent(new KeyboardEvent('input', {}));
       console.log('pin', pinArr[currentPinIndex]);
-      filterSlots();
-      currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
+      setTimeout(() => {
+        if (document.querySelector('.error-text')) {
+          searchByPin();
+        } else {
+          filterSlots();
+          currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
+        }
+      }, 100);
     }, 100);
   }
 
