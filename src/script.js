@@ -1,6 +1,11 @@
 let vaccinatorFormData = {};
 (async function () {
   vaccinatorFormData = {
+    autoBook: true,
+    isCovaxin: true,
+    isCovishield: true,
+    isSputnik: true,
+    eighteenPlusOnly: true,
     ...(await getData()),
   };
 
@@ -443,7 +448,7 @@ let vaccinatorFormData = {};
     };
   }
 
-  function showNotification(centers, type) {
+  function showNotification(centers) {
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
     const body = `Vaccines available at ${centers}.${vaccinatorFormData.autoBook ? '' : 'Click On Submit Now!!!'}`;
@@ -485,5 +490,205 @@ let vaccinatorFormData = {};
     };
     waitPromise.cancel = cancelWait;
     return waitPromise;
+  }
+
+  function addPrimaryContainer(background = 'red', message = 'Fill details and start script!!') {
+    const currentMainContainer = document.getElementById('cowin-vaccinator-main-container');
+    if (currentMainContainer) currentMainContainer.remove();
+    const container = document.createElement('div');
+    container.setAttribute(
+      'style',
+      `background: ${background}; position: absolute; padding: 15px; text-align: center; cursor: pointer; border-radius: 30px; color: white; font-weight: 500;`
+    );
+    container.setAttribute('id', 'cowin-vaccinator-main-container');
+    container.appendChild(document.createTextNode('CoWIN: Vaccinator 💉'));
+    const messageContainer = document.createElement('div');
+    messageContainer.setAttribute('style', 'font-size: 15px; padding-top: 5px;');
+    messageContainer.appendChild(document.createTextNode(message));
+    messageContainer.setAttribute('id', 'cowin-vaccinator-main-message');
+    container.appendChild(messageContainer);
+    container.addEventListener('click', displayForm);
+    document.body.appendChild(container);
+  }
+
+  function displayForm() {
+    const createCheckbox = (id, value, labelText, containerEl, onChange) => {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = id;
+      checkbox.checked = value;
+      checkbox.id = id;
+
+      const label = document.createElement('label');
+      label.htmlFor = id;
+      label.appendChild(document.createTextNode(labelText));
+      label.setAttribute('style', `padding-right: 10px;`);
+
+      checkbox.addEventListener('change', (e) => {
+        onChange(e.target.checked);
+      });
+
+      containerEl.appendChild(label);
+      containerEl.appendChild(checkbox);
+    };
+
+    const createInputField = (id, value, placeholder, containerEl, onChange) => {
+      const input = document.createElement('input');
+      input.setAttribute('type', 'text');
+      input.setAttribute('name', id);
+      input.setAttribute('placeholder', placeholder);
+      input.setAttribute('style', 'width: 70%; background: white;');
+      input.setAttribute('value', value);
+      input.addEventListener('change', (e) => {
+        onChange(e.target.value);
+      });
+      containerEl.appendChild(input);
+    };
+
+    console.log('Open Form');
+    const currentFormContainer = document.getElementById('cowin-vaccinator-form-container');
+    if (currentFormContainer) currentFormContainer.remove();
+    const container = document.createElement('div');
+    container.setAttribute(
+      'style',
+      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px;`
+    );
+    container.setAttribute('id', 'cowin-vaccinator-form-container');
+
+    const hr = document.createElement('hr');
+    hr.setAttribute('style', `margin: 5px 0 5px; border-width: 0;`);
+
+    const button = document.createElement('button');
+    button.setAttribute('style', 'font-weight: 700; border-radius: 20px; padding: 10px 15px;');
+
+    const header = document.createElement('h4');
+    header.appendChild(document.createTextNode('CoWIN: Vaccinator 💉 • Fill in your details'));
+
+    container.appendChild(header);
+    container.appendChild(hr.cloneNode());
+
+    createInputField(
+      'vaccinator-mobileNumber',
+      vaccinatorFormData.mobileNo || '',
+      '10 Digit Mobile No',
+      container,
+      (value) => setVaccinatorFormData('mobileNo', value)
+    );
+
+    container.appendChild(hr.cloneNode());
+
+    createCheckbox(
+      'vaccinator-eighteenPlusOnly-checkbox',
+      vaccinatorFormData.eighteenPlusOnly,
+      '18 - 45: ',
+      container,
+      (value) => {
+        vaccinatorFormData.eighteenPlusOnly = value;
+      }
+    );
+    container.appendChild(hr.cloneNode());
+    createInputField(
+      'vaccinator-pinCodes',
+      vaccinatorFormData.pin || '',
+      'Enter comma(,) separated pincodes',
+      container,
+      (value) => setVaccinatorFormData('pin', value)
+    );
+
+    container.appendChild(hr.cloneNode());
+
+    createCheckbox(
+      'vaccinator-isCovishield-checkbox',
+      vaccinatorFormData.isCovishield,
+      'Covishield:',
+      container,
+      (value) => {
+        vaccinatorFormData.isCovishield = value;
+      }
+    );
+
+    container.appendChild(hr.cloneNode());
+
+    createCheckbox('vaccinator-isCovaxin-checkbox', vaccinatorFormData.isCovaxin, 'Covaxin:', container, (value) => {
+      vaccinatorFormData.isCovaxin = value;
+    });
+
+    container.appendChild(hr.cloneNode());
+
+    createCheckbox('vaccinator-isSputnik-checkbox', vaccinatorFormData.isSputnik, 'Sputnik V:', container, (value) => {
+      vaccinatorFormData.isSputnik = value;
+    });
+
+    container.appendChild(hr.cloneNode());
+
+    createCheckbox(
+      'vaciinator-autobook-checkbox',
+      vaccinatorFormData.autoBook,
+      'AutoBook: (Selecting this will autobook a slot when available)',
+      container,
+      (value) => {
+        vaccinatorFormData.autoBook = value;
+      }
+    );
+
+    container.appendChild(hr.cloneNode());
+
+    const submitButton = button.cloneNode();
+    submitButton.appendChild(
+      document.createTextNode(vaccinatorFormData.start ? 'Stop Automated Script' : 'Start Automated Script')
+    );
+    submitButton.addEventListener('click', () => {
+      console.log('Script Will Run: ', !vaccinatorFormData.start);
+      setVaccinatorFormData('start', !vaccinatorFormData.start);
+      if (vaccinatorFormData.start) {
+        scheduleEvent();
+        addPrimaryContainer('green', 'Automated Script Is Running!!');
+      } else {
+        addPrimaryContainer('red');
+      }
+      container.remove();
+    });
+    container.appendChild(submitButton);
+
+    container.appendChild(hr.cloneNode());
+
+    const cancelButton = button.cloneNode();
+    cancelButton.appendChild(document.createTextNode('Close'));
+    cancelButton.addEventListener('click', () => {
+      console.log('Hide form');
+      container.remove();
+    });
+    container.appendChild(cancelButton);
+
+    document.body.appendChild(container);
+  }
+
+  function setVaccinatorFormData(key, value) {
+    vaccinatorFormData[key] = value;
+    saveData();
+    console.log(`CoWIN: Vaccinator 💉 ${key}: `, value);
+  }
+
+  function saveData() {
+    if (window.chrome && window.chrome.storage.sync.set) {
+      window.chrome.storage.sync.set({ cowinVaccinatorData: JSON.stringify(vaccinatorFormData) });
+    } else if (window.localStorage && window.localStorage.setItem) {
+      window.localStorage.setItem('cowinVaccinatorData', JSON.stringify(vaccinatorFormData));
+    }
+  }
+
+  function getData() {
+    return new Promise((resolve) => {
+      let data = '{}';
+      if (window.chrome && window.chrome.storage.sync.set) {
+        window.chrome.storage.sync.get('cowinVaccinatorData', (chromeStoragedata) => {
+          resolve(JSON.parse(chromeStoragedata.cowinVaccinatorData || data));
+        });
+        return;
+      } else if (window.localStorage && window.localStorage.getItem) {
+        data = window.localStorage.getItem('cowinVaccinatorData') || data;
+      }
+      resolve(JSON.parse(data));
+    });
   }
 })();
