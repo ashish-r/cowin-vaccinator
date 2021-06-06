@@ -589,7 +589,7 @@ let vaccinatorFormData = {};
     createCheckbox(
       'vaccinator-eighteenPlusOnly-checkbox',
       vaccinatorFormData.eighteenPlusOnly,
-      '18 - 45: ',
+      'Age Group (18 - 45): ',
       container,
       (value) => {
         vaccinatorFormData.eighteenPlusOnly = value;
