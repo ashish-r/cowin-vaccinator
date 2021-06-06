@@ -59,7 +59,7 @@ let vaccinatorFormData = {};
     (vaccinatorFormData.pin || (vaccinatorFormData.state && vaccinatorFormData.district))
   ) {
     scheduleEvent();
-  } else {
+  } else if (!vaccinatorFormData.start) {
     console.log('Collecting form data for CoWIN: Vaccinator 💉');
     collectData();
   }
@@ -308,11 +308,11 @@ let vaccinatorFormData = {};
       return;
     }
     if (vaccinatorFormData.isFreeOnly) {
-      const freeButton = await waitForNode(() => document.querySelector("input[id='c6']"));
+      const freeButton = await waitForNode(() => document.querySelector("input[id='c7']"));
       console.log('applied free filter');
       freeButton.click();
     } else {
-      const paidButton = await waitForNode(() => document.querySelector("input[id='c7']"));
+      const paidButton = await waitForNode(() => document.querySelector("input[id='c6']"));
       console.log('applied paid filter');
       paidButton.click();
     }
