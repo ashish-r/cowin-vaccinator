@@ -307,6 +307,15 @@ let vaccinatorFormData = {};
     if (vaccinatorFormData.isFreeOnly === null || vaccinatorFormData.isFreeOnly === undefined) {
       return;
     }
+    if (vaccinatorFormData.isFreeOnly) {
+      const freeButton = await waitForNode(() => document.querySelector("input[id='c6']"));
+      console.log('applied free filter');
+      freeButton.click();
+    } else {
+      const paidButton = await waitForNode(() => document.querySelector("input[id='c7']"));
+      console.log('applied paid filter');
+      paidButton.click();
+    }
   }
 
   async function apply18plus() {
