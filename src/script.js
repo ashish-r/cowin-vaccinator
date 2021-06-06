@@ -194,13 +194,9 @@ let vaccinatorFormData = {
       pinInput.dispatchEvent(new KeyboardEvent('input', {}));
       console.log('pin', pinArr[currentPinIndex]);
       setTimeout(() => {
-        if (document.querySelector('.error-text')) {
-          searchByPin();
-        } else {
-          filterSlots();
-          currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
-        }
-      }, 500);
+        filterSlots();
+        currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
+      }, 100);
     }, 100);
   }
 
@@ -271,11 +267,20 @@ let vaccinatorFormData = {
     locationDetails();
   }
 
-  function locationDetails() {
-    if (!window.location.pathname.includes('appointment')) {
-      setTimeout(locationDetails, 100);
-      return;
-    }
+  async function locationDetails() {
+    const shouldProceed = new Promise((resolve) => {
+      setTimeout(() => {
+        if (!window.location.pathname.includes('appointment')) {
+          window.location.reload();
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      }, 100);
+    });
+
+    if (!shouldProceed) return;
+
     if (pin.trim()) {
       searchByPin();
     } else {
@@ -348,6 +353,18 @@ let vaccinatorFormData = {
     console.log('filterSlots');
     const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0]);
     searchButton.click();
+
+    const shouldProceed = await new Promise((resolve) => {
+      setTimeout(() => {
+        if (document.querySelector('.error-text')) {
+          locationDetails();
+          resolve(false);
+        }
+        resolve(true);
+      }, 500);
+    });
+
+    if (!shouldProceed) return;
 
     const table = await waitForNode(() => document.getElementsByTagName('mat-selection-list')[0]);
     console.log('response Received');
