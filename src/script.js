@@ -494,7 +494,9 @@ let vaccinatorFormData = {};
     const container = document.createElement('div');
     container.setAttribute(
       'style',
-      `background: ${background}; position: absolute; padding: 15px; text-align: center; cursor: pointer; border-radius: 30px; color: white; font-weight: 500;`
+      `background: ${background}; position: absolute; padding: 15px; text-align: center; cursor: pointer; border-radius: 30px; color: ${
+        background === 'yellow' ? 'black' : 'white'
+      }; font-weight: 500;`
     );
     container.setAttribute('id', 'cowin-vaccinator-main-container');
     container.appendChild(document.createTextNode('CoWIN: Vaccinator 💉'));
