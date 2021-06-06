@@ -227,6 +227,7 @@ let vaccinatorFormData = {
   }
 
   async function enterOtp() {
+    loginOTPNotification();
     const otpInput = await waitForNode(() => document.querySelector("input[formcontrolname='otp']"));
     clearTimeout(logoutTimeout);
     logoutTimeout = null;
@@ -425,18 +426,22 @@ let vaccinatorFormData = {
         if (logoutTimeout === null || logoutTimeout === undefined) return;
         console.log('logout');
         logoutButton.click();
+        loginOTPNotification();
         window.location.reload();
-        const title = 'CoWIN: Vaccinator 💉 Login Again';
-        const icon = 'image-url';
-        const body = `Please enter OTP to login again'}`;
-        const notification = new Notification(title, { body, icon });
-        notification.onclick = () => {
-          notification.close();
-          window.parent.focus();
-          clearTitleFlash();
-        };
       });
     }, logoutTimer);
+  }
+
+  function loginOTPNotification() {
+    const title = 'CoWIN: Vaccinator 💉 Login Again';
+    const icon = 'image-url';
+    const body = `Please enter OTP to login again'}`;
+    const notification = new Notification(title, { body, icon });
+    notification.onclick = () => {
+      notification.close();
+      window.parent.focus();
+      clearTitleFlash();
+    };
   }
 
   function showNotification(centers, type) {
