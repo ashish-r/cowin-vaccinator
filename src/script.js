@@ -1,10 +1,7 @@
-let vaccinatorFormData = {
-  start: true,
-};
+let vaccinatorFormData = {};
 (async function () {
   vaccinatorFormData = {
     ...(await getData()),
-    ...vaccinatorFormData,
   };
 
   if (vaccinatorFormData.start) {
@@ -217,6 +214,8 @@ let vaccinatorFormData = {
   }
 
   async function enterMobile() {
+    clearTimeout(logoutTimeout);
+    logoutTimeout = null;
     const input = await waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']"));
     input.value = vaccinatorFormData.mobileNo;
     input.dispatchEvent(new KeyboardEvent('input', {}));
@@ -465,35 +464,6 @@ let vaccinatorFormData = {
       .catch(function (error) {
         console.log(error);
       });
-  }
-
-  function setVaccinatorFormData(key, value) {
-    vaccinatorFormData[key] = value;
-    saveData();
-    console.log(`CoWIN: Vaccinator 💉 ${key}: `, value);
-  }
-
-  function saveData() {
-    if (window.chrome && window.chrome.storage.sync.set) {
-      window.chrome.storage.sync.set({ cowinVaccinatorData: JSON.stringify(vaccinatorFormData) });
-    } else if (window.localStorage && window.localStorage.setItem) {
-      window.localStorage.setItem('cowinVaccinatorData', JSON.stringify(vaccinatorFormData));
-    }
-  }
-
-  function getData() {
-    return new Promise((resolve) => {
-      let data = '{}';
-      if (window.chrome && window.chrome.storage.sync.set) {
-        window.chrome.storage.sync.get('cowinVaccinatorData', (chromeStoragedata) => {
-          resolve(JSON.parse(chromeStoragedata.cowinVaccinatorData || data));
-        });
-        return;
-      } else if (window.localStorage && window.localStorage.getItem) {
-        data = window.localStorage.getItem('cowinVaccinatorData') || data;
-      }
-      resolve(JSON.parse(data));
-    });
   }
 
   function waitForNode(finder) {
