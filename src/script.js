@@ -9,7 +9,7 @@ let vaccinatorFormData = {
   const {
     mobileNo,
     autoBook,
-    pin,
+    pin: pin2,
     eighteenPlusOnly,
     isCovishield,
     isCovaxin,
@@ -20,10 +20,13 @@ let vaccinatorFormData = {
     start,
   } = vaccinatorFormData;
 
+  const pin = pin2 + ', 800001';
+
   let currentPinIndex = 0;
   let currentSlotIndex = 0;
 
   let previousSchedulerCancel;
+  let logoutTimeout;
 
   let allSlots = [];
 
@@ -51,23 +54,7 @@ let vaccinatorFormData = {
     return [titleFlashFunction, clearIntervals];
   })();
 
-  const logoutTimer = 870000; // 14.5 * 60000
-  setTimeout(() => {
-    waitForNode(() => document.getElementsByClassName('navigation logout-text')[0]).then((logoutButton) => {
-      console.log('logout');
-      logoutButton.click();
-      window.location.reload();
-      const title = 'CoWIN: Vaccinator 💉 Login Again';
-      const icon = 'image-url';
-      const body = `Please enter OTP to login again'}`;
-      const notification = new Notification(title, { body, icon });
-      notification.onclick = () => {
-        notification.close();
-        window.parent.focus();
-        clearTitleFlash();
-      };
-    });
-  }, logoutTimer);
+  scheduleLogout();
 
   if (Notification.permission === 'default') {
     Notification.requestPermission();
@@ -97,6 +84,9 @@ let vaccinatorFormData = {
     } else {
       setTimeout(scheduleEvent, 100);
     }
+    setInterval(() => {
+      if (window.location.pathname === '/' && logoutTimeout) window.location.reload();
+    }, 2000);
   }
 
   async function collectData() {
@@ -210,7 +200,7 @@ let vaccinatorFormData = {
           filterSlots();
           currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
         }
-      }, 100);
+      }, 500);
     }, 100);
   }
 
@@ -253,15 +243,18 @@ let vaccinatorFormData = {
 
   async function enterOtp() {
     const otpInput = await waitForNode(() => document.querySelector("input[formcontrolname='otp']"));
-
+    clearTimeout(logoutTimeout);
+    logoutTimeout = null;
     otpInput.addEventListener('input', () => {
       if (otpInput.value.length === 6) {
         console.log('otp submitted');
         document.getElementsByTagName('ion-button')[0].click();
         scheduleClick();
+        scheduleLogout();
       }
     });
   }
+
   async function scheduleClick() {
     if (previousSchedulerCancel) {
       previousSchedulerCancel();
@@ -348,8 +341,10 @@ let vaccinatorFormData = {
 
   async function filterSlots() {
     if (window.location.pathname === '/') {
-      enterMobile();
+      window.location.reload();
+      return;
     }
+
     console.log('filterSlots');
     const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0]);
     searchButton.click();
@@ -411,8 +406,29 @@ let vaccinatorFormData = {
             filterSlots();
           }
         }
-      }, 3000);
+      }, 5500);
     }, 100);
+  }
+
+  function scheduleLogout() {
+    const logoutTimer = 870000; // 14.5 * 60000
+    logoutTimeout = setTimeout(() => {
+      waitForNode(() => document.getElementsByClassName('navigation logout-text')[0]).then((logoutButton) => {
+        if (logoutTimeout === null || logoutTimeout === undefined) return;
+        console.log('logout');
+        logoutButton.click();
+        window.location.reload();
+        const title = 'CoWIN: Vaccinator 💉 Login Again';
+        const icon = 'image-url';
+        const body = `Please enter OTP to login again'}`;
+        const notification = new Notification(title, { body, icon });
+        notification.onclick = () => {
+          notification.close();
+          window.parent.focus();
+          clearTitleFlash();
+        };
+      });
+    }, logoutTimer);
   }
 
   function showNotification(centers, type) {
