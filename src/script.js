@@ -6,21 +6,6 @@ let vaccinatorFormData = {
     ...(await getData()),
     ...vaccinatorFormData,
   };
-  const {
-    mobileNo,
-    autoBook,
-    pin: pin2,
-    eighteenPlusOnly,
-    isCovishield,
-    isCovaxin,
-    isSputnik,
-    isFreeOnly,
-    state,
-    district,
-    start,
-  } = vaccinatorFormData;
-
-  const pin = pin2 + ', 800001';
 
   let currentPinIndex = 0;
   let currentSlotIndex = 0;
@@ -61,11 +46,11 @@ let vaccinatorFormData = {
   }
 
   if (
-    start &&
-    mobileNo &&
-    eighteenPlusOnly !== null &&
-    eighteenPlusOnly !== undefined &&
-    (pin || (state && district))
+    vaccinatorFormData.start &&
+    vaccinatorFormData.mobileNo &&
+    vaccinatorFormData.eighteenPlusOnly !== null &&
+    vaccinatorFormData.eighteenPlusOnly !== undefined &&
+    (vaccinatorFormData.pin || (vaccinatorFormData.state && vaccinatorFormData.district))
   ) {
     scheduleEvent();
   } else {
@@ -86,7 +71,7 @@ let vaccinatorFormData = {
     }
     setInterval(() => {
       if (window.location.pathname === '/' && logoutTimeout) window.location.reload();
-    }, 2000);
+    }, 5000);
   }
 
   async function collectData() {
@@ -168,7 +153,7 @@ let vaccinatorFormData = {
     document.querySelector("mat-select[formcontrolname='district_id']").click();
     setTimeout(() => {
       const option = [...document.querySelectorAll("mat-option[role='option']")].find(
-        (node) => node.textContent.trim().toLowerCase() === district.trim().toLowerCase()
+        (node) => node.textContent.trim().toLowerCase() === vaccinatorFormData.district.trim().toLowerCase()
       );
       if (option) {
         option.click();
@@ -188,7 +173,7 @@ let vaccinatorFormData = {
       return;
     }
     const pinInput = document.querySelector("input[formcontrolname='pincode']");
-    const pinArr = pin.split(',');
+    const pinArr = vaccinatorFormData.pin.split(',');
     setTimeout(() => {
       pinInput.value = pinArr[currentPinIndex].trim();
       pinInput.dispatchEvent(new KeyboardEvent('input', {}));
@@ -212,7 +197,7 @@ let vaccinatorFormData = {
       stateField.click();
       setTimeout(() => {
         const option = [...document.querySelectorAll("mat-option[role='option']")].find(
-          (node) => node.textContent.trim().toLowerCase() === state.trim().toLowerCase()
+          (node) => node.textContent.trim().toLowerCase() === vaccinatorFormData.state.trim().toLowerCase()
         );
         if (option) {
           console.log('state selected');
@@ -229,7 +214,7 @@ let vaccinatorFormData = {
 
   async function enterMobile() {
     const input = await waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']"));
-    input.value = mobileNo;
+    input.value = vaccinatorFormData.mobileNo;
     input.dispatchEvent(new KeyboardEvent('input', {}));
     input.blur();
     console.log('mobile number submit');
@@ -281,7 +266,7 @@ let vaccinatorFormData = {
 
     if (!shouldProceed) return;
 
-    if (pin.trim()) {
+    if (vaccinatorFormData.pin.trim()) {
       searchByPin();
     } else {
       selectState();
@@ -289,20 +274,20 @@ let vaccinatorFormData = {
   }
 
   async function selectVaccineType() {
-    if (isCovaxin && isCovishield && isSputnik) {
+    if (vaccinatorFormData.isCovaxin && vaccinatorFormData.isCovishield && vaccinatorFormData.isSputnik) {
       return;
     }
-    if (isCovaxin) {
+    if (vaccinatorFormData.isCovaxin) {
       const button = await waitForNode(() => document.querySelector("input[id='c4']"));
       console.log('Covaxin selected');
       button.click();
     }
-    if (isCovishield) {
+    if (vaccinatorFormData.isCovishield) {
       const button = await waitForNode(() => document.querySelector("input[id='c3']"));
       console.log('Covishield selected');
       button.click();
     }
-    if (isSputnik) {
+    if (vaccinatorFormData.isSputnik) {
       const button = await waitForNode(() => document.querySelector("input[id='c5']"));
       console.log('Sputnik selected');
       button.click();
@@ -310,7 +295,7 @@ let vaccinatorFormData = {
   }
 
   async function selectFreeOrPaid() {
-    if (isFreeOnly === null || isFreeOnly === undefined) {
+    if (vaccinatorFormData.isFreeOnly === null || vaccinatorFormData.isFreeOnly === undefined) {
       return;
     }
   }
@@ -330,7 +315,7 @@ let vaccinatorFormData = {
   async function book() {
     const timeSlots = await waitForNode(() => document.querySelectorAll('ion-button.time-slot'));
     timeSlots[Math.floor(timeSlots.length / 2)].click();
-    if (autoBook) {
+    if (vaccinatorFormData.autoBook) {
       console.log('book clicked');
       const bookButton = await waitForNode(() => document.querySelector("ion-button.confirm-btn[type='submit']"));
       bookButton.click();
@@ -368,7 +353,7 @@ let vaccinatorFormData = {
 
     const table = await waitForNode(() => document.getElementsByTagName('mat-selection-list')[0]);
     console.log('response Received');
-    if (eighteenPlusOnly) {
+    if (vaccinatorFormData.eighteenPlusOnly) {
       await apply18plus();
     } else {
       await apply45plus();
@@ -416,8 +401,8 @@ let vaccinatorFormData = {
           enterMobile();
           return;
         }
-        if (start) {
-          if (pin.trim()) {
+        if (vaccinatorFormData.start) {
+          if (vaccinatorFormData.pin.trim()) {
             searchByPin();
           } else {
             filterSlots();
@@ -451,7 +436,7 @@ let vaccinatorFormData = {
   function showNotification(centers, type) {
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
-    const body = `Vaccines available at ${centers}.${autoBook ? '' : 'Click On Submit Now!!!'}`;
+    const body = `Vaccines available at ${centers}.${vaccinatorFormData.autoBook ? '' : 'Click On Submit Now!!!'}`;
     const notification = new Notification(title, { body, icon });
     notification.onclick = () => {
       notification.close();
