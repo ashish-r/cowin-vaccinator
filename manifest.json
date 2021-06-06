@@ -2,6 +2,7 @@
   "name": "CoWIN: Vaccinator 💉",
   "version": "1.0",
   "manifest_version": 2,
+  "description": "Auto book vaccine slot on CoWIN",
   "content_scripts": [
     {
       "matches": ["https://selfregistration.cowin.gov.in/*"],
@@ -10,5 +11,10 @@
   ],
   "permissions": [
     "storage"
-  ]
+  ],
+  "icons": {
+    "16": "logo/logo16.png",
+    "48": "logo/logo48.png",
+    "128": "logo/logo128.png"
+  }
 }
