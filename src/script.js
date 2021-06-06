@@ -631,24 +631,24 @@ let vaccinatorFormData = {};
     container.appendChild(hr.cloneNode());
 
     createCheckbox(
-      'vaciinator-autobook-checkbox',
-      vaccinatorFormData.autoBook,
-      'AutoBook: (Selecting this will autobook a slot when available)',
-      container,
-      (value) => {
-        vaccinatorFormData.autoBook = value;
-      }
-    );
-
-    container.appendChild(hr.cloneNode());
-
-    createCheckbox(
       'vaciinator-isFreeOnly-checkbox',
       vaccinatorFormData.isFreeOnly,
       'Only Free Vaccines:',
       container,
       (value) => {
         vaccinatorFormData.isFreeOnly = value;
+      }
+    );
+
+    container.appendChild(hr.cloneNode());
+
+    createCheckbox(
+      'vaciinator-autobook-checkbox',
+      vaccinatorFormData.autoBook,
+      'AutoBook: (Selecting this will autobook a slot when available)',
+      container,
+      (value) => {
+        vaccinatorFormData.autoBook = value;
       }
     );
 
