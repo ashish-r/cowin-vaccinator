@@ -655,11 +655,12 @@ let vaccinatorFormData = {};
     container.appendChild(hr.cloneNode());
 
     setTimeout(() => {
-      if (vaccinatorFormData.pin) {
+      if ((vaccinatorFormData.pin || '').trim()) {
         document.getElementById('vaccinator-state-select').setAttribute('disabled', true);
         document.getElementById('vaccinator-district-select').setAttribute('disabled', true);
       } else {
         if (vaccinatorFormData.state) {
+          document.getElementById('vaccinator-pinCodes').setAttribute('disabled', true);
           document.getElementById('vaccinator-state-select').value = vaccinatorFormData.state;
           createSelectOption(
             document.getElementById('vaccinator-district-select'),
@@ -672,7 +673,7 @@ let vaccinatorFormData = {};
         if (vaccinatorFormData.district) {
           setTimeout(() => {
             document.getElementById('vaccinator-district-select').value = vaccinatorFormData.district;
-          });
+          }, 100);
         }
       }
     }, 100);
