@@ -153,7 +153,7 @@ let vaccinatorFormData = {};
     document.querySelector("mat-select[formcontrolname='district_id']").click();
     setTimeout(() => {
       const option = [...document.querySelectorAll("mat-option[role='option']")].find(
-        (node) => node.textContent.trim().toLowerCase() === vaccinatorFormData.district.trim().toLowerCase()
+        (node) => node.textContent.trim().toLowerCase() === (vaccinatorFormData.district || '').trim().toLowerCase()
       );
       if (option) {
         option.click();
@@ -197,7 +197,7 @@ let vaccinatorFormData = {};
       stateField.click();
       setTimeout(() => {
         const option = [...document.querySelectorAll("mat-option[role='option']")].find(
-          (node) => node.textContent.trim().toLowerCase() === vaccinatorFormData.state.trim().toLowerCase()
+          (node) => node.textContent.trim().toLowerCase() === (vaccinatorFormData.state || '').trim().toLowerCase()
         );
         if (option) {
           console.log('state selected');
@@ -269,7 +269,7 @@ let vaccinatorFormData = {};
 
     if (!shouldProceed) return;
 
-    if (vaccinatorFormData.pin.trim()) {
+    if ((vaccinatorFormData.pin || '').trim()) {
       searchByPin();
     } else {
       selectState();
@@ -409,7 +409,7 @@ let vaccinatorFormData = {};
           return;
         }
         if (vaccinatorFormData.start) {
-          if (vaccinatorFormData.pin.trim()) {
+          if ((vaccinatorFormData.pin || '').trim()) {
             searchByPin();
           } else {
             filterSlots();
