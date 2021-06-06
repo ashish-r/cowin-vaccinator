@@ -168,7 +168,7 @@ let vaccinatorFormData = {
     waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']")).then((mobileInput) => {
       console.log('CoWIN: Vaccinator 💉 watching mobile field');
       mobileInput.addEventListener('change', (e) => {
-        setVaccinatorFormData('mobile', e.target.value);
+        setVaccinatorFormData('mobileNo', e.target.value);
       });
     });
   }
@@ -428,7 +428,7 @@ let vaccinatorFormData = {
   function setVaccinatorFormData(key, value) {
     vaccinatorFormData[key] = value;
     saveData();
-    console.log(`CoWIN: Vaccinator 💉 ${District}: `, value);
+    console.log(`CoWIN: Vaccinator 💉 ${key}: `, value);
   }
 
   function saveData() {
