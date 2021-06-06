@@ -176,7 +176,9 @@ let vaccinatorFormData = {
   function districtSelection() {
     document.querySelector("mat-select[formcontrolname='district_id']").click();
     setTimeout(() => {
-      const option = document.querySelector("mat-option[id='mat-option-53']");
+      const option = [...document.querySelectorAll("mat-option[role='option']")].find(
+        (node) => node.textContent.trim().toLowerCase() === district.trim().toLowerCase()
+      );
       if (option) {
         option.click();
         console.log('district selected');
@@ -222,7 +224,9 @@ let vaccinatorFormData = {
     if (stateField) {
       stateField.click();
       setTimeout(() => {
-        const option = document.querySelector("mat-option[id='mat-option-21']");
+        const option = [...document.querySelectorAll("mat-option[role='option']")].find(
+          (node) => node.textContent.trim().toLowerCase() === state.trim().toLowerCase()
+        );
         if (option) {
           console.log('state selected');
           option.click();
