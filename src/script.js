@@ -7,6 +7,12 @@ let vaccinatorFormData = {
     ...vaccinatorFormData,
   };
 
+  if (vaccinatorFormData.start) {
+    addPrimaryContainer('green', 'Automated Script Is Running!!');
+  } else {
+    addPrimaryContainer('red');
+  }
+
   let currentPinIndex = 0;
   let currentSlotIndex = 0;
 
@@ -38,8 +44,6 @@ let vaccinatorFormData = {
 
     return [titleFlashFunction, clearIntervals];
   })();
-
-  scheduleLogout();
 
   if (Notification.permission === 'default') {
     Notification.requestPermission();
@@ -165,14 +169,14 @@ let vaccinatorFormData = {
     }, 100);
   }
 
-  function searchByPin() {
+  async function searchByPin() {
     const searchType = document.querySelector("input[formcontrolname='searchType']");
     if (searchType && searchType.checked) {
       searchType.click();
       setTimeout(searchByPin, 100);
       return;
     }
-    const pinInput = document.querySelector("input[formcontrolname='pincode']");
+    const pinInput = await waitForNode(() => document.querySelector("input[formcontrolname='pincode']"));
     const pinArr = vaccinatorFormData.pin.split(',');
     setTimeout(() => {
       pinInput.value = pinArr[currentPinIndex].trim();
@@ -319,6 +323,8 @@ let vaccinatorFormData = {
       console.log('book clicked');
       const bookButton = await waitForNode(() => document.querySelector("ion-button.confirm-btn[type='submit']"));
       bookButton.click();
+    } else {
+      addPrimaryContainer('yellow', 'Click on the submit button to book your slot!!');
     }
   }
 
