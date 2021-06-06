@@ -3,8 +3,8 @@ let vaccinatorFormData = {
 };
 (async function () {
   vaccinatorFormData = {
-    ...vaccinatorFormData,
     ...(await getData()),
+    ...vaccinatorFormData,
   };
   const {
     mobileNo,
@@ -54,6 +54,7 @@ let vaccinatorFormData = {
   const logoutTimer = 870000; // 14.5 * 60000
   setTimeout(() => {
     waitForNode(() => document.getElementsByClassName('navigation logout-text')[0]).then((logoutButton) => {
+      console.log('logout');
       logoutButton.click();
       window.location.reload();
       const title = 'CoWIN: Vaccinator 💉 Login Again';
@@ -324,7 +325,7 @@ let vaccinatorFormData = {
 
   async function apply45plus() {
     const button = await waitForNode(() => document.querySelector("input[id='c2']"));
-    console.log('applied 18plus filter');
+    console.log('applied 45plus filter');
     button.click();
   }
 
@@ -403,10 +404,12 @@ let vaccinatorFormData = {
           enterMobile();
           return;
         }
-        if (pin.trim()) {
-          searchByPin();
-        } else {
-          filterSlots();
+        if (start) {
+          if (pin.trim()) {
+            searchByPin();
+          } else {
+            filterSlots();
+          }
         }
       }, 3000);
     }, 100);

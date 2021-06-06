@@ -10,7 +10,7 @@ const jeditor = require('gulp-json-editor');
 exports.buildJs = gulp.task('buildJs', function () {
   return (
     browserify({
-      entries: ['src/script.js', 'src/ui.js'],
+      entries: ['src/script.js', 'src/ui.js', 'src/data.js'],
       transform: [babelify.configure({ presets: ['@babel/preset-env'] })],
     })
       .bundle()
