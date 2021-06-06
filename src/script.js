@@ -325,7 +325,7 @@ let vaccinatorFormData = {};
       const bookButton = await waitForNode(() => document.querySelector("ion-button.confirm-btn[type='submit']"));
       bookButton.click();
     } else {
-      addPrimaryContainer('yellow', 'Click on the submit button to book your slot!!');
+      addPrimaryContainer('yellow', `Click on the 'CONFIRM' button to book your slot!!`);
     }
   }
 
