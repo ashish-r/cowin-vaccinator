@@ -435,7 +435,7 @@ let vaccinatorFormData = {};
   function loginOTPNotification() {
     const title = 'CoWIN: Vaccinator 💉 Login Again';
     const icon = 'image-url';
-    const body = `Please enter OTP to login again'}`;
+    const body = `Please enter OTP to login again`;
     const notification = new Notification(title, { body, icon });
     notification.onclick = () => {
       notification.close();
@@ -532,6 +532,7 @@ let vaccinatorFormData = {};
       const input = document.createElement('input');
       input.setAttribute('type', 'text');
       input.setAttribute('name', id);
+      input.setAttribute('id', id);
       input.setAttribute('placeholder', placeholder);
       input.setAttribute('style', 'width: 70%; background: white;');
       input.setAttribute('value', value);
@@ -539,6 +540,35 @@ let vaccinatorFormData = {};
         onChange(e.target.value);
       });
       containerEl.appendChild(input);
+    };
+
+    const createSelectOption = (selectItem, data, placeholder) => {
+      [...selectItem.getElementsByTagName('option')].forEach((node) => node.remove());
+      const disabledOption = document.createElement('option');
+      disabledOption.value = -1;
+      disabledOption.text = placeholder;
+      disabledOption.selected = true;
+      selectItem.appendChild(disabledOption);
+
+      //Create and append the options
+      data.forEach((val) => {
+        const option = document.createElement('option');
+        option.value = val;
+        option.text = val;
+        selectItem.appendChild(option);
+      });
+    };
+
+    const createSelect = (id, placeholder, data, containerEl, callback) => {
+      const selectList = document.createElement('select');
+      selectList.setAttribute('style', 'width: 70%; background: white;');
+      selectList.id = id;
+      createSelectOption(selectList, data, placeholder);
+      selectList.addEventListener('change', () => {
+        callback(selectList.value);
+      });
+
+      containerEl.appendChild(selectList);
     };
 
     console.log('Open Form');
@@ -573,6 +603,80 @@ let vaccinatorFormData = {};
 
     container.appendChild(hr.cloneNode());
 
+    createInputField(
+      'vaccinator-pinCodes',
+      vaccinatorFormData.pin || '',
+      'Enter comma(,) separated pincodes',
+      container,
+      (value) => {
+        const filteredValue = (value || '').trim();
+        setVaccinatorFormData('pin', filteredValue);
+        if (filteredValue) {
+          document.getElementById('vaccinator-state-select').setAttribute('disabled', true);
+          document.getElementById('vaccinator-district-select').setAttribute('disabled', true);
+        } else {
+          document.getElementById('vaccinator-state-select').removeAttribute('disabled');
+          document.getElementById('vaccinator-district-select').removeAttribute('disabled');
+        }
+      }
+    );
+
+    container.appendChild(hr.cloneNode());
+    container.appendChild(document.createTextNode('- OR -'));
+    container.appendChild(hr.cloneNode());
+
+    createSelect('vaccinator-state-select', 'Select State', Object.keys(stateData).sort(), container, (value) => {
+      if (value !== '-1') {
+        setVaccinatorFormData('state', value);
+        createSelectOption(
+          document.getElementById('vaccinator-district-select'),
+          stateDistrictData[stateData[value]].districts.map((districtInfo) => districtInfo.district_name),
+          'Select District'
+        );
+        document.getElementById('vaccinator-pinCodes').setAttribute('disabled', true);
+      } else {
+        setVaccinatorFormData('state', '');
+        setVaccinatorFormData('district', '');
+        createSelectOption(document.getElementById('vaccinator-district-select'), [], 'Select District');
+        document.getElementById('vaccinator-pinCodes').removeAttribute('disabled');
+      }
+    });
+
+    container.appendChild(hr.cloneNode());
+
+    createSelect('vaccinator-district-select', 'Select District', [], container, (value) => {
+      if (value !== '-1') {
+        setVaccinatorFormData('district', value);
+      } else {
+        setVaccinatorFormData('district', '');
+      }
+    });
+
+    container.appendChild(hr.cloneNode());
+
+    setTimeout(() => {
+      if (vaccinatorFormData.pin) {
+        document.getElementById('vaccinator-state-select').setAttribute('disabled', true);
+        document.getElementById('vaccinator-district-select').setAttribute('disabled', true);
+      } else {
+        if (vaccinatorFormData.state) {
+          document.getElementById('vaccinator-state-select').value = vaccinatorFormData.state;
+          createSelectOption(
+            document.getElementById('vaccinator-district-select'),
+            stateDistrictData[stateData[vaccinatorFormData.state]].districts.map(
+              (districtInfo) => districtInfo.district_name
+            ),
+            'Select District'
+          );
+        }
+        if (vaccinatorFormData.district) {
+          setTimeout(() => {
+            document.getElementById('vaccinator-district-select').value = vaccinatorFormData.district;
+          });
+        }
+      }
+    }, 100);
+
     createCheckbox(
       'vaccinator-eighteenPlusOnly-checkbox',
       vaccinatorFormData.eighteenPlusOnly,
@@ -582,15 +686,6 @@ let vaccinatorFormData = {};
         vaccinatorFormData.eighteenPlusOnly = value;
       }
     );
-    container.appendChild(hr.cloneNode());
-    createInputField(
-      'vaccinator-pinCodes',
-      vaccinatorFormData.pin || '',
-      'Enter comma(,) separated pincodes',
-      container,
-      (value) => setVaccinatorFormData('pin', value)
-    );
-
     container.appendChild(hr.cloneNode());
 
     createCheckbox(

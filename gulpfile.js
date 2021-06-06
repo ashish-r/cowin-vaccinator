@@ -6,11 +6,16 @@ const buffer = require('vinyl-buffer');
 const uglify = require('gulp-uglify');
 const zip = require('gulp-zip');
 const jeditor = require('gulp-json-editor');
+const concat = require('gulp-concat');
+
+exports.concatJs = gulp.task('concatJs', function () {
+  return gulp.src(['src/data.js', 'src/script.js']).pipe(concat('main.js')).pipe(gulp.dest('bin/build'));
+});
 
 exports.buildJs = gulp.task('buildJs', function () {
   return (
     browserify({
-      entries: ['src/data.js', 'src/script.js'],
+      entries: ['bin/build/main.js'],
       transform: [babelify.configure({ presets: ['@babel/preset-env'], plugins: ['@babel/plugin-transform-runtime'] })],
     })
       .bundle()
@@ -43,4 +48,4 @@ exports.zipAssets = gulp.task('zipAssets', function () {
   return gulp.src(['bin/build/**']).pipe(zip('cowin-vaccinator.zip')).pipe(gulp.dest('bin'));
 });
 
-gulp.task('build', gulp.series('buildJs', 'copyManifest', 'copyLogos', 'zipAssets'));
+gulp.task('build', gulp.series('concatJs', 'buildJs', 'copyManifest', 'copyLogos', 'zipAssets'));
