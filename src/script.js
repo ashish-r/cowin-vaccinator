@@ -337,7 +337,7 @@ let vaccinatorFormData = {};
 
   function selectSlot(slot, allLocations) {
     console.log('Trigger Notification');
-    showNotification(allLocations.join(', '));
+    showNotification(`Available at ${slot.name} + ${allLocations.length - 1} locations`);
     slot.node.click();
     book();
   }
@@ -451,10 +451,10 @@ let vaccinatorFormData = {};
     };
   }
 
-  function showNotification(centers) {
+  function showNotification(message) {
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
-    const body = `Vaccines available at ${centers}.${vaccinatorFormData.autoBook ? '' : 'Click On Submit Now!!'}`;
+    const body = message;
     const notification = new Notification(title, { body, icon });
     notification.onclick = () => {
       notification.close();
