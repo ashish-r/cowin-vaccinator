@@ -10,12 +10,12 @@ You can now [drag and drop](#drag-and-drop) or [load the unpacked directory of f
 
 ### Drag and drop
 
-Download the packed `crx` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.crx). <br/>
+**Download** the packed `crx` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.crx). <br/>
 Visit [chrome://extensions/](chrome://extensions/) and _drag-and-drop_ the downloaded `crx` file on this page.
 
 ### Load unpacked
 
-Download the zipped `zip` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.zip). <br/>
+**Download** the zipped `zip` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.zip). <br/>
 Unzip/extract files in a folder. <br/>
 Visit [chrome://extensions/](chrome://extensions/) and click on "Load unpacked" to select the folder where you have extracted the `zip` file contents.
 
