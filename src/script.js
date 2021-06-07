@@ -337,7 +337,7 @@ let vaccinatorFormData = {};
 
   function selectSlot(slot, allLocations) {
     console.log('Trigger Notification');
-    showNotification(`Available at ${slot.name} + ${allLocations.length - 1} locations`);
+    showNotification(`Available at ${slot.name} + ${allLocations.length - 1} other locations`);
     slot.node.click();
     book();
   }
