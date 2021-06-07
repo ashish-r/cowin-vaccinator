@@ -17,12 +17,9 @@ let vaccinatorFormData = {};
   }
 
   let currentPinIndex = 0;
-  let currentSlotIndex = 0;
 
   let previousSchedulerCancel;
   let logoutTimeout;
-
-  let allSlots = [];
 
   const [startTitleFlash, clearTitleFlash] = (() => {
     const originalPageTitle = document.title;
@@ -327,6 +324,7 @@ let vaccinatorFormData = {};
 
   async function book() {
     const timeSlots = await waitForNode(() => document.querySelectorAll('ion-button.time-slot'));
+    if (!timeSlots.length) return;
     timeSlots[Math.floor(timeSlots.length / 2)].click();
     if (vaccinatorFormData.autoBook) {
       console.log('book clicked');
@@ -337,10 +335,10 @@ let vaccinatorFormData = {};
     }
   }
 
-  function selectSlot() {
-    allSlots[currentSlotIndex].node.click();
-    console.log('selected ', allSlots[currentSlotIndex].name);
-    currentSlotIndex = currentSlotIndex < allSlots.length - 1 ? currentSlotIndex + 1 : 0;
+  function selectSlot(slot, allLocations) {
+    console.log('Trigger Notification');
+    showNotification(allLocations.join(', '));
+    slot.node.click();
     book();
   }
 
@@ -378,8 +376,10 @@ let vaccinatorFormData = {};
     await selectFreeOrPaid();
 
     setTimeout(() => {
+      searchButton.scrollIntoView();
       console.log('response filter');
-      allSlots = [];
+      let slot = {};
+      const allSlotLocations = [];
       const option = table.getElementsByTagName('mat-list-option');
       [...option].forEach((row) => {
         const toRemove = [...row.querySelectorAll('.vaccine-box,.vaccine-box1,.vaccine-padding')].filter(
@@ -390,24 +390,23 @@ let vaccinatorFormData = {};
         if (!availableSlots.length) {
           row.remove();
         } else {
-          [...availableSlots].forEach((node) =>
-            allSlots.push({
-              name: row.querySelector('.center-name-title').textContent,
-              node,
-              count: (node.textContent || '').trim().split(' ')[0],
-            })
-          );
+          const slotLocation = row.querySelector('.center-name-title').textContent;
+          allSlotLocations.push(slotLocation);
+          [...availableSlots].forEach((node) => {
+            const slotCount = +(node.textContent || '').trim().split(' ')[0];
+            if (slotCount > (slot.count || 0)) {
+              slot = {
+                name: slotLocation,
+                node,
+                count: slotCount,
+              };
+            }
+          });
         }
       });
 
-      if (allSlots.length) {
-        allSlots.sort((a, b) => +b.count - +a.count);
-        console.log(allSlots);
-
-        selectSlot();
-        searchButton.scrollIntoView();
-        console.log('Trigger Notification');
-        showNotification([...new Set(allSlots.map(({ name }) => name))].join(', '));
+      if (slot.count) {
+        selectSlot(slot, allSlotLocations);
         return;
       }
       setTimeout(() => {
