@@ -726,7 +726,7 @@ let vaccinatorFormData = {};
       'Age Group (18 - 45): ',
       container,
       (value) => {
-        vaccinatorFormData.eighteenPlusOnly = value;
+        setVaccinatorFormData('eighteenPlusOnly', value);
       }
     );
     container.appendChild(hr.cloneNode());
@@ -737,20 +737,20 @@ let vaccinatorFormData = {};
       'Covishield:',
       container,
       (value) => {
-        vaccinatorFormData.isCovishield = value;
+        setVaccinatorFormData('isCovishield', value);
       }
     );
 
     container.appendChild(hr.cloneNode());
 
     createCheckbox('vaccinator-isCovaxin-checkbox', vaccinatorFormData.isCovaxin, 'Covaxin:', container, (value) => {
-      vaccinatorFormData.isCovaxin = value;
+      setVaccinatorFormData('isCovaxin', value);
     });
 
     container.appendChild(hr.cloneNode());
 
     createCheckbox('vaccinator-isSputnik-checkbox', vaccinatorFormData.isSputnik, 'Sputnik V:', container, (value) => {
-      vaccinatorFormData.isSputnik = value;
+      setVaccinatorFormData('isSputnik', value);
     });
 
     container.appendChild(hr.cloneNode());
@@ -761,7 +761,7 @@ let vaccinatorFormData = {};
       'Only Free Vaccines:',
       container,
       (value) => {
-        vaccinatorFormData.isFreeOnly = value;
+        setVaccinatorFormData('isFreeOnly', value);
       }
     );
 
@@ -773,7 +773,7 @@ let vaccinatorFormData = {};
       'Autobook (Bot will automatically book an available slot):',
       container,
       (value) => {
-        vaccinatorFormData.autoBook = value;
+        setVaccinatorFormData('autoBook', value);
       }
     );
 
