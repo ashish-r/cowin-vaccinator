@@ -456,7 +456,7 @@ let vaccinatorFormData = {};
     };
 
     startTitleFlash();
-    const audio = new Audio('https://github.com/ashish-r/cowin-vaccinator/blob/main/src/alert.mp3?raw=true');
+    const audio = new Audio('https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/src/alert.mp3');
     audio
       .play()
       .then(function () {
