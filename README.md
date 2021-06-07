@@ -4,9 +4,24 @@ A browser extension for superfast booking of vaccine slots on [CoWIN](https://se
 
 ## Installation
 
-To install this extension on chrome, follow the steps mentioned [here](https://developer.chrome.com/docs/extensions/mv3/faq/#faq-dev-01). 
+This browser extension is compatible with Google Chrome. You need to enable the *Developer mode* for chrome to install this extension.
+<br/>Go to [chrome://extensions/](chrome://extensions/) and check the box for "Developer mode" in the top right. For more details, [click here](https://developer.chrome.com/docs/extensions/mv3/faq/#faq-dev-01). <br/> 
+You can now [drag and drop](#drag-and-drop) or [load the unpacked directory of files](#load-unpacked) to install this extension. 
+
+### Drag and drop
+Download the packed `crx` file from [here](https://drive.google.com).  <br/> 
+Visit [chrome://extensions/](chrome://extensions/) and *drag-and-drop* the downloaded `crx` file on this page.
+
+### Load unpacked
+Download the zipped `zip` file from [here](https://drive.google.com).  <br/> 
+Unzip/extract files in a folder.  <br/> 
+Visit [chrome://extensions/](chrome://extensions/) and click on "Load unpacked" to select the folder where you have extracted the `zip` file contents.
+
 ## Uses
-After installation, visit the [CoWIN self-registration portal](https://selfregistration.cowin.gov.in/). You'll see a button to start the bot. Click on that button, fill in your details, and click on book my vaccine. This will automatically fill in all your details on the CoWin website, and you only need to enter the OTP. Once you enter the OTP, the bot will continuously search for available slots, and if found, it will auto-book it for you.
+After installation, visit the [CoWIN self-registration portal](https://selfregistration.cowin.gov.in/). <br/>You'll see a button to start the bot. Click on that button, fill in your details, and click on book my vaccine.  <br/> 
+The bot will automatically fill in all your details on the CoWin website, and you only need to enter the OTP.  <br/> 
+Once you enter the OTP, the bot will continuously search for available slots, and if found, it will auto-book it for you.
+
 In case the bot is stuck or behaves unexpectedly, stop the bot and try refreshing the page. 
 
 ## Screenshots
