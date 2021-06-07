@@ -10,7 +10,7 @@ let vaccinatorFormData = {};
   };
 
   if (vaccinatorFormData.start) {
-    addPrimaryContainer('green', 'Automated Script Is Running!!');
+    addPrimaryContainer('green', 'Bot Running...');
   } else {
     addPrimaryContainer('red');
   }
@@ -29,7 +29,7 @@ let vaccinatorFormData = {};
     let interval2;
     const titleFlashFunction = () => {
       interval1 = setInterval(() => {
-        document.title = `CoWIN: Vaccinator 💉 vaccines found`;
+        document.title = `CoWIN: Vaccinator 💉 vaccines found!!`;
       }, 1000);
       setTimeout(() => {
         interval2 = setInterval(() => {
@@ -256,7 +256,7 @@ let vaccinatorFormData = {};
   }
 
   async function locationDetails() {
-    const shouldProceed = new Promise((resolve) => {
+    const shouldProceed = await new Promise((resolve) => {
       setTimeout(() => {
         if (!window.location.pathname.includes('appointment')) {
           window.location.reload();
@@ -399,7 +399,7 @@ let vaccinatorFormData = {};
         selectSlot();
         searchButton.scrollIntoView();
         console.log('Trigger Notification');
-        showNotification([...new Set(allSlots.map(({ name }) => name))].join(', '), '');
+        showNotification([...new Set(allSlots.map(({ name }) => name))].join(', '));
         return;
       }
       setTimeout(() => {
@@ -447,7 +447,7 @@ let vaccinatorFormData = {};
   function showNotification(centers) {
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
-    const body = `Vaccines available at ${centers}.${vaccinatorFormData.autoBook ? '' : 'Click On Submit Now!!!'}`;
+    const body = `Vaccines available at ${centers}.${vaccinatorFormData.autoBook ? '' : 'Click On Submit Now!!'}`;
     const notification = new Notification(title, { body, icon });
     notification.onclick = () => {
       notification.close();
@@ -488,7 +488,7 @@ let vaccinatorFormData = {};
     return waitPromise;
   }
 
-  function addPrimaryContainer(background = 'red', message = 'Fill details and start script!!') {
+  function addPrimaryContainer(background = 'red', message = 'Start Bot...') {
     const currentMainContainer = document.getElementById('cowin-vaccinator-main-container');
     if (currentMainContainer) currentMainContainer.remove();
     const container = document.createElement('div');
@@ -730,7 +730,7 @@ let vaccinatorFormData = {};
     createCheckbox(
       'vaciinator-autobook-checkbox',
       vaccinatorFormData.autoBook,
-      'AutoBook: (Selecting this will autobook a slot when available)',
+      'AutoBook: (Selecting this will autobook an available slot)',
       container,
       (value) => {
         vaccinatorFormData.autoBook = value;
@@ -741,14 +741,14 @@ let vaccinatorFormData = {};
 
     const submitButton = button.cloneNode();
     submitButton.appendChild(
-      document.createTextNode(vaccinatorFormData.start ? 'Stop Automated Script' : 'Start Automated Script')
+      document.createTextNode(vaccinatorFormData.start ? 'Searching for vaccine' : 'Book my vaccine')
     );
     submitButton.addEventListener('click', () => {
       console.log('Script Will Run: ', !vaccinatorFormData.start);
       setVaccinatorFormData('start', !vaccinatorFormData.start);
       if (vaccinatorFormData.start) {
         scheduleEvent();
-        addPrimaryContainer('green', 'Automated Script Is Running!!');
+        addPrimaryContainer('green', 'Bot Running...');
       } else {
         addPrimaryContainer('red');
       }
