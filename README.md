@@ -1,6 +1,6 @@
 # CoWIN: Vaccinator 💉
 
-A browser extension for superfast booking of vaccine slots on [CoWIN](https://selfregistration.cowin.gov.in/).
+A browser extension for superfast automated booking of vaccine slots on [CoWIN](https://selfregistration.cowin.gov.in/).
 
 ## Installation
 
