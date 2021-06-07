@@ -504,7 +504,7 @@ let vaccinatorFormData = {};
       'style',
       `background: ${background}; position: absolute; padding: 15px; text-align: center; cursor: pointer; border-radius: 30px; color: ${
         background === 'yellow' ? 'black' : 'white'
-      }; font-weight: 500;`
+      }; font-weight: 800;`
     );
     container.setAttribute('id', 'cowin-vaccinator-main-container');
     container.appendChild(document.createTextNode('CoWIN: Vaccinator 💉'));
@@ -592,7 +592,7 @@ let vaccinatorFormData = {};
     const container = document.createElement('div');
     container.setAttribute(
       'style',
-      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px;`
+      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px; font-weight: normal; line-height: 1.5;`
     );
     container.setAttribute('id', 'cowin-vaccinator-form-container');
 
@@ -607,6 +607,7 @@ let vaccinatorFormData = {};
 
     const header = document.createElement('h4');
     header.appendChild(document.createTextNode('CoWIN: Vaccinator 💉 • Fill in your details'));
+    header.setAttribute('style', 'font-size: 30px; padding-bottom: 10px;');
 
     container.appendChild(header);
     container.appendChild(hr.cloneNode());
@@ -620,6 +621,7 @@ let vaccinatorFormData = {};
     );
 
     container.appendChild(hr.cloneNode());
+    container.appendChild(document.createTextNode(' '));
     container.appendChild(hr.cloneNode());
 
     createInputField(
@@ -643,11 +645,9 @@ let vaccinatorFormData = {};
         }
       }
     );
-
     container.appendChild(hr.cloneNode());
     container.appendChild(document.createTextNode('- OR -'));
     container.appendChild(hr.cloneNode());
-
     createSelect('vaccinator-state-select', 'Select State', Object.keys(stateData).sort(), container, (value) => {
       if (value !== '-1') {
         setVaccinatorFormData('state', value);
@@ -770,7 +770,7 @@ let vaccinatorFormData = {};
     createCheckbox(
       'vaciinator-autobook-checkbox',
       vaccinatorFormData.autoBook,
-      'AutoBook: (Selecting this will autobook an available slot)',
+      'Autobook (Bot will automatically book an available slot):',
       container,
       (value) => {
         vaccinatorFormData.autoBook = value;
@@ -794,6 +794,7 @@ let vaccinatorFormData = {};
     }
 
     container.appendChild(hr.cloneNode());
+    container.appendChild(document.createTextNode(' '));
     container.appendChild(hr.cloneNode());
 
     const submitButton = button.cloneNode();
