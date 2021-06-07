@@ -740,9 +740,7 @@ let vaccinatorFormData = {};
     container.appendChild(hr.cloneNode());
 
     const submitButton = button.cloneNode();
-    submitButton.appendChild(
-      document.createTextNode(vaccinatorFormData.start ? 'Searching for vaccine' : 'Book my vaccine')
-    );
+    submitButton.appendChild(document.createTextNode(vaccinatorFormData.start ? 'Stop Bot' : 'Book my vaccine'));
     submitButton.addEventListener('click', () => {
       console.log('Script Will Run: ', !vaccinatorFormData.start);
       setVaccinatorFormData('start', !vaccinatorFormData.start);
