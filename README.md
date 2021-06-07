@@ -6,7 +6,7 @@ A browser extension for superfast booking of vaccine slots on [CoWIN](https://se
 
 This browser extension is compatible with Google Chrome. You need to enable the _Developer mode_ for chrome to install this extension.
 <br/>Go to [chrome://extensions/](chrome://extensions/) and check the box for "Developer mode" in the top right. For more details, [click here](https://developer.chrome.com/docs/extensions/mv3/faq/#faq-dev-01). <br/>
-You can now [drag and drop](#drag-and-drop) or [load the unpacked directory of files](#load-unpacked) to install this extension.
+You can now [drag and drop](#drag-and-drop) or [load the unpacked directory of files](#load-unpacked) to install.
 
 ### Drag and drop
 
