@@ -599,7 +599,7 @@ let vaccinatorFormData = {};
     const container = document.createElement('div');
     container.setAttribute(
       'style',
-      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px; font-weight: normal; line-height: 1.5;`
+      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px; font-weight: normal; line-height: 1.5; max-height: 100%; overflow: scroll;`
     );
     container.setAttribute('id', 'cowin-vaccinator-form-container');
 
