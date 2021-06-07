@@ -41,4 +41,4 @@ Clone the repository from https://github.com/ashish-r/cowin-vaccinator. [![DeepS
 
 ### npm run build
 
-Transpiles the code to es5, bundles with `manifest.json`, and creates a zip file under the `build` directory.
+Transpiles the code to es5, bundles with `manifest.json`, and creates a zip file under the `bin` directory.
