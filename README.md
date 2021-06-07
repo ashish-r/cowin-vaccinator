@@ -6,16 +6,16 @@ A browser extension for superfast booking of vaccine slots on [CoWIN](https://se
 
 This browser extension is compatible with Google Chrome. You need to enable the _Developer mode_ for chrome to install this extension.
 <br/>Go to [chrome://extensions/](chrome://extensions/) and check the box for "Developer mode" in the top right. For more details, [click here](https://developer.chrome.com/docs/extensions/mv3/faq/#faq-dev-01). <br/>
-You can now [drag and drop](#drag-and-drop) or [load the unpacked directory of files](#load-unpacked) to install this extension.
+You can now [drag and drop](#drag-and-drop) or [load the unpacked directory of files](#load-unpacked) to install.
 
 ### Drag and drop
 
-Download the packed `crx` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.crx). <br/>
+**Download** the packed `crx` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.crx). <br/>
 Visit [chrome://extensions/](chrome://extensions/) and _drag-and-drop_ the downloaded `crx` file on this page.
 
 ### Load unpacked
 
-Download the zipped `zip` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.zip). <br/>
+**Download** the zipped `zip` file from [here](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/build/bin/cowin-vaccinator.zip). <br/>
 Unzip/extract files in a folder. <br/>
 Visit [chrome://extensions/](chrome://extensions/) and click on "Load unpacked" to select the folder where you have extracted the `zip` file contents.
 
@@ -37,8 +37,8 @@ In case the bot is stuck or behaves unexpectedly, stop the bot and try refreshin
 
 ## Build
 
+Clone the repository from [github.com/ashish-r/cowin-vaccinator](https://github.com/ashish-r/cowin-vaccinator). [![DeepScan grade](https://deepscan.io/api/teams/10012/projects/17476/branches/401367/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10012&pid=17476&bid=401367)
+
 ### npm run build
 
-Transpiles the code to es5, bundles with `manifest.json`, and creates a zip file under the `build` directory.
-
-[![DeepScan grade](https://deepscan.io/api/teams/10012/projects/17476/branches/401367/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10012&pid=17476&bid=401367)
+Transpiles the code to es5, bundles with `manifest.json`, and creates a zip file under the `bin` directory.

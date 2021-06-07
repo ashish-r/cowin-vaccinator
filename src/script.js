@@ -6,6 +6,7 @@ let vaccinatorFormData = {};
     isCovishield: true,
     isSputnik: true,
     eighteenPlusOnly: true,
+    memberNumber: 1,
     ...(await getData()),
   };
 
@@ -54,8 +55,6 @@ let vaccinatorFormData = {};
   if (
     vaccinatorFormData.start &&
     vaccinatorFormData.mobileNo &&
-    vaccinatorFormData.eighteenPlusOnly !== null &&
-    vaccinatorFormData.eighteenPlusOnly !== undefined &&
     (vaccinatorFormData.pin || (vaccinatorFormData.state && vaccinatorFormData.district))
   ) {
     scheduleEvent();
@@ -151,16 +150,18 @@ let vaccinatorFormData = {};
 
   function districtSelection() {
     document.querySelector("mat-select[formcontrolname='district_id']").click();
+    if (!vaccinatorFormData.district) return;
+
     setTimeout(() => {
       const option = [...document.querySelectorAll("mat-option[role='option']")].find(
-        (node) => node.textContent.trim().toLowerCase() === (vaccinatorFormData.district || '').trim().toLowerCase()
+        (node) => node.textContent.trim().toLowerCase() === vaccinatorFormData.district.trim().toLowerCase()
       );
       if (option) {
         option.click();
         console.log('district selected');
         filterSlots();
       } else {
-        districtSelection();
+        setTimeout(districtSelection, 100);
       }
     }, 100);
   }
@@ -174,10 +175,12 @@ let vaccinatorFormData = {};
     }
     const pinInput = await waitForNode(() => document.querySelector("input[formcontrolname='pincode']"));
     const pinArr = vaccinatorFormData.pin.split(',');
+    const pinToSerach = pinArr[currentPinIndex].trim();
+    if (!pinToSerach) return;
     setTimeout(() => {
-      pinInput.value = pinArr[currentPinIndex].trim();
+      pinInput.value = pinToSerach;
       pinInput.dispatchEvent(new KeyboardEvent('input', {}));
-      console.log('pin', pinArr[currentPinIndex]);
+      console.log('pin', pinToSerach);
       setTimeout(() => {
         filterSlots();
         currentPinIndex = currentPinIndex < pinArr.length - 1 ? currentPinIndex + 1 : 0;
@@ -195,9 +198,10 @@ let vaccinatorFormData = {};
     const stateField = document.querySelector("mat-select[formcontrolname='state_id']");
     if (stateField) {
       stateField.click();
+      if (!vaccinatorFormData.state) return;
       setTimeout(() => {
         const option = [...document.querySelectorAll("mat-option[role='option']")].find(
-          (node) => node.textContent.trim().toLowerCase() === (vaccinatorFormData.state || '').trim().toLowerCase()
+          (node) => node.textContent.trim().toLowerCase() === vaccinatorFormData.state.trim().toLowerCase()
         );
         if (option) {
           console.log('state selected');
@@ -216,7 +220,9 @@ let vaccinatorFormData = {};
     clearTimeout(logoutTimeout);
     logoutTimeout = null;
     const input = await waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']"));
-    input.value = vaccinatorFormData.mobileNo;
+    const mobileNumber = (vaccinatorFormData.mobileNo || '').trim();
+    if (!mobileNumber) return;
+    input.value = mobileNumber;
     input.dispatchEvent(new KeyboardEvent('input', {}));
     input.blur();
     console.log('mobile number submit');
@@ -246,7 +252,9 @@ let vaccinatorFormData = {};
     const scheduleButtonPromise = waitForNode(
       () =>
         !document.getElementsByTagName('ion-spinner').length &&
-        document.querySelector("img[src='assets/images/calndericon.svg']")
+        document.querySelectorAll("img[src='assets/images/calndericon.svg']")[
+          (+vaccinatorFormData.memberNumber || 1) - 1
+        ]
     );
     previousSchedulerCancel = scheduleButtonPromise.cancel;
     const scheduleButton = await scheduleButtonPromise;
@@ -488,7 +496,7 @@ let vaccinatorFormData = {};
     return waitPromise;
   }
 
-  function addPrimaryContainer(background = 'red', message = 'Start Bot...') {
+  function addPrimaryContainer(background = 'red', message = 'Start Bot') {
     const currentMainContainer = document.getElementById('cowin-vaccinator-main-container');
     if (currentMainContainer) currentMainContainer.remove();
     const container = document.createElement('div');
@@ -496,7 +504,7 @@ let vaccinatorFormData = {};
       'style',
       `background: ${background}; position: absolute; padding: 15px; text-align: center; cursor: pointer; border-radius: 30px; color: ${
         background === 'yellow' ? 'black' : 'white'
-      }; font-weight: 500;`
+      }; font-weight: 800;`
     );
     container.setAttribute('id', 'cowin-vaccinator-main-container');
     container.appendChild(document.createTextNode('CoWIN: Vaccinator 💉'));
@@ -505,28 +513,31 @@ let vaccinatorFormData = {};
     messageContainer.appendChild(document.createTextNode(message));
     messageContainer.setAttribute('id', 'cowin-vaccinator-main-message');
     container.appendChild(messageContainer);
-    container.addEventListener('click', displayForm);
+    container.addEventListener('click', () => displayForm());
     document.body.appendChild(container);
   }
 
-  function displayForm() {
+  function displayForm(withError) {
+    console.log(`Open Form. IsError: ${withError}`);
+
+    const createLabel = (labelText, id, containerEl) => {
+      const label = document.createElement('label');
+      label.htmlFor = id;
+      label.appendChild(document.createTextNode(labelText));
+      label.setAttribute('style', `padding-right: 10px;`);
+      containerEl.appendChild(label);
+    };
     const createCheckbox = (id, value, labelText, containerEl, onChange) => {
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.name = id;
       checkbox.checked = value;
       checkbox.id = id;
-
-      const label = document.createElement('label');
-      label.htmlFor = id;
-      label.appendChild(document.createTextNode(labelText));
-      label.setAttribute('style', `padding-right: 10px;`);
+      createLabel(labelText, id, containerEl);
 
       checkbox.addEventListener('change', (e) => {
         onChange(e.target.checked);
       });
-
-      containerEl.appendChild(label);
       containerEl.appendChild(checkbox);
     };
 
@@ -546,11 +557,14 @@ let vaccinatorFormData = {};
 
     const createSelectOption = (selectItem, data, placeholder) => {
       [...selectItem.getElementsByTagName('option')].forEach((node) => node.remove());
-      const disabledOption = document.createElement('option');
-      disabledOption.value = -1;
-      disabledOption.text = placeholder;
-      disabledOption.selected = true;
-      selectItem.appendChild(disabledOption);
+
+      if (placeholder) {
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = -1;
+        placeholderOption.text = placeholder;
+        placeholderOption.selected = true;
+        selectItem.appendChild(placeholderOption);
+      }
 
       //Create and append the options
       data.forEach((val) => {
@@ -563,7 +577,7 @@ let vaccinatorFormData = {};
 
     const createSelect = (id, placeholder, data, containerEl, callback) => {
       const selectList = document.createElement('select');
-      selectList.setAttribute('style', 'width: 70%; background: white;');
+      selectList.setAttribute('style', 'width: 40%; background: white; margin-right: 10px;');
       selectList.id = id;
       createSelectOption(selectList, data, placeholder);
       selectList.addEventListener('change', () => {
@@ -573,13 +587,12 @@ let vaccinatorFormData = {};
       containerEl.appendChild(selectList);
     };
 
-    console.log('Open Form');
     const currentFormContainer = document.getElementById('cowin-vaccinator-form-container');
     if (currentFormContainer) currentFormContainer.remove();
     const container = document.createElement('div');
     container.setAttribute(
       'style',
-      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px;`
+      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px; font-weight: normal; line-height: 1.5;`
     );
     container.setAttribute('id', 'cowin-vaccinator-form-container');
 
@@ -587,10 +600,14 @@ let vaccinatorFormData = {};
     hr.setAttribute('style', `margin: 5px 0 5px; border-width: 0;`);
 
     const button = document.createElement('button');
-    button.setAttribute('style', 'font-weight: 700; border-radius: 20px; padding: 10px 15px;');
+    button.setAttribute(
+      'style',
+      'font-weight: 700; border-radius: 20px; padding: 10px 15px; font-size: inherit; line-height: inherit;'
+    );
 
     const header = document.createElement('h4');
     header.appendChild(document.createTextNode('CoWIN: Vaccinator 💉 • Fill in your details'));
+    header.setAttribute('style', 'font-size: 30px; padding-bottom: 10px;');
 
     container.appendChild(header);
     container.appendChild(hr.cloneNode());
@@ -600,9 +617,11 @@ let vaccinatorFormData = {};
       vaccinatorFormData.mobileNo || '',
       '10 Digit Mobile No',
       container,
-      (value) => setVaccinatorFormData('mobileNo', value)
+      (value) => setVaccinatorFormData('mobileNo', (value || '').trim())
     );
 
+    container.appendChild(hr.cloneNode());
+    container.appendChild(document.createTextNode(' '));
     container.appendChild(hr.cloneNode());
 
     createInputField(
@@ -611,7 +630,11 @@ let vaccinatorFormData = {};
       'Enter comma(,) separated pincodes',
       container,
       (value) => {
-        const filteredValue = (value || '').trim();
+        const filteredValue = (value || '')
+          .split(',')
+          .map((pinValue) => pinValue.trim())
+          .filter(Boolean)
+          .join(',');
         setVaccinatorFormData('pin', filteredValue);
         if (filteredValue) {
           document.getElementById('vaccinator-state-select').setAttribute('disabled', true);
@@ -622,14 +645,13 @@ let vaccinatorFormData = {};
         }
       }
     );
-
     container.appendChild(hr.cloneNode());
     container.appendChild(document.createTextNode('- OR -'));
     container.appendChild(hr.cloneNode());
-
     createSelect('vaccinator-state-select', 'Select State', Object.keys(stateData).sort(), container, (value) => {
       if (value !== '-1') {
         setVaccinatorFormData('state', value);
+        setVaccinatorFormData('district', '');
         createSelectOption(
           document.getElementById('vaccinator-district-select'),
           stateDistrictData[stateData[value]].districts.map((districtInfo) => districtInfo.district_name),
@@ -643,8 +665,6 @@ let vaccinatorFormData = {};
         document.getElementById('vaccinator-pinCodes').removeAttribute('disabled');
       }
     });
-
-    container.appendChild(hr.cloneNode());
 
     createSelect('vaccinator-district-select', 'Select District', [], container, (value) => {
       if (value !== '-1') {
@@ -679,6 +699,26 @@ let vaccinatorFormData = {};
         }
       }
     }, 100);
+
+    createLabel('Member Number On Dashboad:', 'vaccinator-member-number', container);
+
+    createSelect(
+      'vaccinator-member-number',
+      null,
+      Array(20)
+        .fill()
+        .map((_, i) => i + 1),
+      container,
+      (value) => {
+        setVaccinatorFormData('memberNumber', +value);
+      }
+    );
+
+    setTimeout(() => {
+      document.getElementById('vaccinator-member-number').value = vaccinatorFormData.memberNumber;
+    });
+
+    container.appendChild(hr.cloneNode());
 
     createCheckbox(
       'vaccinator-eighteenPlusOnly-checkbox',
@@ -730,25 +770,53 @@ let vaccinatorFormData = {};
     createCheckbox(
       'vaciinator-autobook-checkbox',
       vaccinatorFormData.autoBook,
-      'AutoBook: (Selecting this will autobook an available slot)',
+      'Autobook (Bot will automatically book an available slot):',
       container,
       (value) => {
         vaccinatorFormData.autoBook = value;
       }
     );
 
+    if (withError) {
+      container.appendChild(hr.cloneNode());
+      const error = document.createElement('div');
+      error.appendChild(
+        document.createTextNode(
+          `Fill all mandatory fields: ${!vaccinatorFormData.mobileNo ? 'Mobile Number' : ''}${
+            !(vaccinatorFormData.pin || (vaccinatorFormData.state && vaccinatorFormData.district))
+              ? `${!vaccinatorFormData.mobileNo ? ', ' : ''}Pin code / State & District`
+              : ''
+          }`
+        )
+      );
+      error.setAttribute('style', 'color: red;');
+      container.appendChild(error);
+    }
+
+    container.appendChild(hr.cloneNode());
+    container.appendChild(document.createTextNode(' '));
     container.appendChild(hr.cloneNode());
 
     const submitButton = button.cloneNode();
     submitButton.appendChild(document.createTextNode(vaccinatorFormData.start ? 'Stop Bot' : 'Book my vaccine'));
     submitButton.addEventListener('click', () => {
-      console.log('Script Will Run: ', !vaccinatorFormData.start);
-      setVaccinatorFormData('start', !vaccinatorFormData.start);
-      if (vaccinatorFormData.start) {
-        scheduleEvent();
-        addPrimaryContainer('green', 'Bot Running...');
+      if (
+        !(
+          vaccinatorFormData.mobileNo &&
+          (vaccinatorFormData.pin || (vaccinatorFormData.state && vaccinatorFormData.district))
+        )
+      ) {
+        console.log('fill mandatory data', vaccinatorFormData);
+        displayForm(true);
       } else {
-        addPrimaryContainer('red');
+        console.log('Script Will Run: ', vaccinatorFormData);
+        setVaccinatorFormData('start', !vaccinatorFormData.start);
+        if (vaccinatorFormData.start) {
+          scheduleEvent();
+          addPrimaryContainer('green', 'Bot Running...');
+        } else {
+          addPrimaryContainer('red');
+        }
       }
       container.remove();
     });
