@@ -30,7 +30,7 @@ exports.buildJs = gulp.task('buildJs', function () {
 
 exports.copyManifest = gulp.task('copyManifest', function () {
   return gulp
-    .src('./manifest.json')
+    .src('src/manifest.json')
     .pipe(
       jeditor(function (json) {
         json.content_scripts[0] = { ...json.content_scripts[0], js: ['main.js'] };
@@ -41,7 +41,7 @@ exports.copyManifest = gulp.task('copyManifest', function () {
 });
 
 exports.copyLogos = gulp.task('copyLogos', function () {
-  return gulp.src('logo/*').pipe(gulp.dest('bin/build/logo'));
+  return gulp.src('src/logo/*').pipe(gulp.dest('bin/build/logo'));
 });
 
 exports.zipAssets = gulp.task('zipAssets', function () {

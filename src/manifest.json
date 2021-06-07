@@ -6,7 +6,7 @@
   "content_scripts": [
     {
       "matches": ["https://selfregistration.cowin.gov.in/*"],
-      "js": ["src/data.js", "src/script.js"]
+      "js": ["data.js", "script.js"]
     }
   ],
   "permissions": [
