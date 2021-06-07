@@ -1,5 +1,10 @@
 let vaccinatorFormData = {};
 (async function () {
+  if (!window.Notification) {
+    window.Notification = {
+      mock: true,
+    };
+  }
   vaccinatorFormData = {
     autoBook: true,
     isCovaxin: true,
@@ -440,6 +445,7 @@ let vaccinatorFormData = {};
   }
 
   function loginOTPNotification() {
+    if (Notification.mock) return;
     const title = 'CoWIN: Vaccinator 💉 Login Again';
     const icon = 'image-url';
     const body = `Please enter OTP to login again`;
@@ -452,6 +458,7 @@ let vaccinatorFormData = {};
   }
 
   function showNotification(message) {
+    if (Notification.mock) return;
     const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
     const body = message;
@@ -463,6 +470,7 @@ let vaccinatorFormData = {};
     };
 
     startTitleFlash();
+    if (!window.Audio) return;
     const audio = new Audio('https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/src/alert.mp3');
     audio
       .play()
@@ -591,7 +599,7 @@ let vaccinatorFormData = {};
     const container = document.createElement('div');
     container.setAttribute(
       'style',
-      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px; font-weight: normal; line-height: 1.5;`
+      `background: white; position: absolute; padding: 15px; text-align: center; color: black; border: 1px dashed black; font-size: 20px; font-weight: normal; line-height: 1.5; max-height: 100%; overflow: scroll;`
     );
     container.setAttribute('id', 'cowin-vaccinator-form-container');
 
