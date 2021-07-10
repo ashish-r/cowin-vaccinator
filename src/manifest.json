@@ -1,12 +1,17 @@
 {
   "name": "CoWIN: Vaccinator 💉",
-  "version": "2.0",
+  "version": "2.1",
   "manifest_version": 2,
   "description": "A browser extension for superfast automated booking of vaccine slots on CoWIN.",
   "content_scripts": [
     {
-      "matches": ["https://selfregistration.cowin.gov.in/*"],
-      "js": ["data.js", "script.js"]
+      "matches": [
+        "https://selfregistration.cowin.gov.in/*"
+      ],
+      "js": [
+        "data.js",
+        "script.js"
+      ]
     }
   ],
   "permissions": [
