@@ -112,6 +112,12 @@ let vaccinatorFormData = {};
       });
     });
 
+    waitForNode(() => document.querySelector("input[id='ca1']")).then((age1845Button) => {
+      age1845Button.addEventListener('change', (e) => {
+        setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
+      });
+    });
+
     waitForNode(() => document.querySelector("input[id='c2']")).then((age45Button) => {
       age45Button.addEventListener('change', (e) => {
         setVaccinatorFormData('eighteenPlusOnly', !e.target.checked);
@@ -321,6 +327,12 @@ let vaccinatorFormData = {};
     button.click();
   }
 
+  async function apply1845() {
+    const button = await waitForNode(() => document.querySelector("input[id='ca1']"));
+    console.log('applied 18 - 45 filter');
+    button.click();
+  }
+
   async function apply45plus() {
     const button = await waitForNode(() => document.querySelector("input[id='c2']"));
     console.log('applied 45plus filter');
@@ -372,10 +384,11 @@ let vaccinatorFormData = {};
     const table = await waitForNode(() => document.getElementsByTagName('mat-selection-list')[0]);
     console.log('response Received');
     if (vaccinatorFormData.eighteenPlusOnly) {
-      await apply18plus();
+      await apply1845();
     } else {
       await apply45plus();
     }
+    await apply18plus();
     await selectVaccineType();
 
     await selectFreeOrPaid();
