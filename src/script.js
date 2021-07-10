@@ -12,6 +12,7 @@ let vaccinatorFormData = {};
     isSputnik: true,
     eighteenPlusOnly: true,
     memberNumber: 1,
+    dose: 1,
     ...(await getData()),
   };
 
@@ -108,6 +109,12 @@ let vaccinatorFormData = {};
 
     waitForNode(() => document.querySelector("input[id='c1']")).then((age18Button) => {
       age18Button.addEventListener('change', (e) => {
+        setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
+      });
+    });
+
+    waitForNode(() => document.querySelector("input[id='ca1']")).then((age1845Button) => {
+      age1845Button.addEventListener('change', (e) => {
         setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
       });
     });
@@ -287,7 +294,7 @@ let vaccinatorFormData = {};
   }
 
   async function selectVaccineType() {
-    if (vaccinatorFormData.isCovaxin && vaccinatorFormData.isCovishield && vaccinatorFormData.isSputnik) {
+    if ((vaccinatorFormData.isCovaxin && vaccinatorFormData.isCovishield && vaccinatorFormData.isSputnik) || vaccinatorFormData.dose === 2) {
       return;
     }
     if (vaccinatorFormData.isCovaxin) {
@@ -318,6 +325,12 @@ let vaccinatorFormData = {};
   async function apply18plus() {
     const button = await waitForNode(() => document.querySelector("input[id='c1']"));
     console.log('applied 18plus filter');
+    button.click();
+  }
+
+  async function apply1844() {
+    const button = await waitForNode(() => document.querySelector("input[id='ca1']"));
+    console.log('applied 18 - 44 filter');
     button.click();
   }
 
@@ -372,10 +385,11 @@ let vaccinatorFormData = {};
     const table = await waitForNode(() => document.getElementsByTagName('mat-selection-list')[0]);
     console.log('response Received');
     if (vaccinatorFormData.eighteenPlusOnly) {
-      await apply18plus();
+      await apply1844();
     } else {
       await apply45plus();
     }
+    await apply18plus();
     await selectVaccineType();
 
     await selectFreeOrPaid();
@@ -723,14 +737,34 @@ let vaccinatorFormData = {};
 
     setTimeout(() => {
       document.getElementById('vaccinator-member-number').value = vaccinatorFormData.memberNumber;
-    });
+    }, 100);
+
+    container.appendChild(hr.cloneNode());
+
+    createLabel('Dose:', 'vaccinator-dose', container);
+
+    createSelect(
+      'vaccinator-dose',
+      null,
+      Array(2)
+        .fill()
+        .map((_, i) => i + 1),
+      container,
+      (value) => {
+        setVaccinatorFormData('dose', +value);
+      }
+    );
+
+    setTimeout(() => {
+      document.getElementById('vaccinator-dose').value = vaccinatorFormData.dose;
+    }, 100);
 
     container.appendChild(hr.cloneNode());
 
     createCheckbox(
       'vaccinator-eighteenPlusOnly-checkbox',
       vaccinatorFormData.eighteenPlusOnly,
-      'Age Group (18 - 45): ',
+      'Age Group (18 - 44): ',
       container,
       (value) => {
         setVaccinatorFormData('eighteenPlusOnly', value);
