@@ -1,6 +1,6 @@
 let vaccinatorFormData = {};
 (async function () {
-  const maximumSearch = 20;
+  const maximumSearch = 19; // less search for safety
   const maximumSearchInterval = 15.5 * 60 * 1000; // extra time for safety
   let remainingSearch = maximumSearch;
 
@@ -25,7 +25,7 @@ let vaccinatorFormData = {};
   if (vaccinatorFormData.start) {
     addPrimaryContainer('green', 'Bot Running...');
   } else {
-    addPrimaryContainer('red');
+    addPrimaryContainer('red', 'Start Bot');
   }
 
   searchQuotaCron();
@@ -387,7 +387,7 @@ let vaccinatorFormData = {};
     }
   }
 
-  async function filterSlots() {
+  async function filterSlots(restartAfterRateLimit) {
     if (window.location.pathname === '/') {
       window.location.reload();
       return;
@@ -395,8 +395,17 @@ let vaccinatorFormData = {};
 
     if (!remainingSearch) {
       console.log('Search Quota Over');
-      setTimeout(filterSlots, 5000);
+      const remainingTime =
+        maximumSearchInterval - (new Date().getTime() - vaccinatorFormData.searchTimeStamp[0]) + 11000; // 11 seconds buffer because cron runs every 10 secs
+      setTimeout(() => filterSlots(true), remainingTime);
+      const remainingMin = Math.ceil(remainingTime / 60000);
+      if (!restartAfterRateLimit) {
+        addPrimaryContainer('darkcyan', `Rate limit: Bot paused for ${remainingMin} mins`);
+      }
       return;
+    }
+    if (restartAfterRateLimit) {
+      addPrimaryContainer('green', 'Bot Running...');
     }
 
     console.log('filterSlots');
@@ -537,7 +546,7 @@ let vaccinatorFormData = {};
     return waitPromise;
   }
 
-  function addPrimaryContainer(background = 'red', message = 'Start Bot') {
+  function addPrimaryContainer(background, message) {
     const currentMainContainer = document.getElementById('cowin-vaccinator-main-container');
     if (currentMainContainer) currentMainContainer.remove();
     const container = document.createElement('div');
@@ -908,7 +917,7 @@ let vaccinatorFormData = {};
           scheduleEvent();
           addPrimaryContainer('green', 'Bot Running...');
         } else {
-          addPrimaryContainer('red');
+          addPrimaryContainer('red', 'Start Bot');
         }
       }
       container.remove();
