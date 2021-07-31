@@ -750,7 +750,7 @@ let vaccinatorFormData = {};
       }
     }, 100);
 
-    createLabel('Member Number On Dashboad:', 'vaccinator-member-number', container);
+    createLabel('Member Number On Dashboard:', 'vaccinator-member-number', container);
 
     createSelect(
       'vaccinator-member-number',
