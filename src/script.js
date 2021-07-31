@@ -753,22 +753,11 @@ let vaccinatorFormData = {};
       (value) => {
         const doseNumber = +value;
         setVaccinatorFormData('dose', doseNumber);
-        const isSecondDose = doseNumber === 2;
-        const covishieldCheckBox = document.getElementById('vaccinator-isCovishield-checkbox');
-        const covaxinCheckBox = document.getElementById('vaccinator-isCovaxin-checkbox');
-        const sputnikCheckBox = document.getElementById('vaccinator-isSputnik-checkbox');
-
-        if (isSecondDose) {
-          setVaccinatorFormData('isCovishield', false);
-          setVaccinatorFormData('isCovaxin', false);
-          setVaccinatorFormData('isSputnik', false);
-          covishieldCheckBox.checked = false;
-          covaxinCheckBox.checked = false;
-          sputnikCheckBox.checked = false;
-        }
-        covishieldCheckBox.setAttribute('disabled', isSecondDose);
-        covaxinCheckBox.setAttribute('disabled', isSecondDose);
-        sputnikCheckBox.setAttribute('disabled', isSecondDose);
+        const isFirstDose = doseNumber !== 2;
+        setVaccinatorFormData('isCovishield', isFirstDose);
+        setVaccinatorFormData('isCovaxin', isFirstDose);
+        setVaccinatorFormData('isSputnik', isFirstDose);
+        displayForm();
       }
     );
 
@@ -787,29 +776,38 @@ let vaccinatorFormData = {};
         setVaccinatorFormData('eighteenPlusOnly', value);
       }
     );
-    container.appendChild(hr.cloneNode());
 
-    createCheckbox(
-      'vaccinator-isCovishield-checkbox',
-      vaccinatorFormData.isCovishield,
-      'Covishield:',
-      container,
-      (value) => {
-        setVaccinatorFormData('isCovishield', value);
-      }
-    );
+    if (vaccinatorFormData.dose !== 2) {
+      container.appendChild(hr.cloneNode());
 
-    container.appendChild(hr.cloneNode());
+      createCheckbox(
+        'vaccinator-isCovishield-checkbox',
+        vaccinatorFormData.isCovishield,
+        'Covishield:',
+        container,
+        (value) => {
+          setVaccinatorFormData('isCovishield', value);
+        }
+      );
 
-    createCheckbox('vaccinator-isCovaxin-checkbox', vaccinatorFormData.isCovaxin, 'Covaxin:', container, (value) => {
-      setVaccinatorFormData('isCovaxin', value);
-    });
+      container.appendChild(hr.cloneNode());
 
-    container.appendChild(hr.cloneNode());
+      createCheckbox('vaccinator-isCovaxin-checkbox', vaccinatorFormData.isCovaxin, 'Covaxin:', container, (value) => {
+        setVaccinatorFormData('isCovaxin', value);
+      });
 
-    createCheckbox('vaccinator-isSputnik-checkbox', vaccinatorFormData.isSputnik, 'Sputnik V:', container, (value) => {
-      setVaccinatorFormData('isSputnik', value);
-    });
+      container.appendChild(hr.cloneNode());
+
+      createCheckbox(
+        'vaccinator-isSputnik-checkbox',
+        vaccinatorFormData.isSputnik,
+        'Sputnik V:',
+        container,
+        (value) => {
+          setVaccinatorFormData('isSputnik', value);
+        }
+      );
+    }
 
     container.appendChild(hr.cloneNode());
 
@@ -827,29 +825,30 @@ let vaccinatorFormData = {};
 
     createCheckbox(
       'vacinator-autoselect-checkbox',
-      vaccinatorFormData.autoSelect,
-      'Let me choose the vaccination centre:',
+      !vaccinatorFormData.autoSelect,
+      'Let Me Choose The Vaccination Centre:',
       container,
       (value) => {
-        setVaccinatorFormData('autoSelect', !value);
-        const autoBookCheckBox = document.getElementById('vacinator-autobook-checkbox');
-        if (value) {
-          setVaccinatorFormData('autoBook', false);
-          autoBookCheckBox.checked = false;
-        }
-        autoBookCheckBox.setAttribute('disabled', value);
+        const allowAutoSelect = !value;
+        setVaccinatorFormData('autoSelect', allowAutoSelect);
+        setVaccinatorFormData('autoBook', allowAutoSelect);
+        displayForm();
       }
     );
 
-    createCheckbox(
-      'vacinator-autobook-checkbox',
-      vaccinatorFormData.autoBook,
-      'Autobook (Bot will automatically book an available slot):',
-      container,
-      (value) => {
-        setVaccinatorFormData('autoBook', value);
-      }
-    );
+    if (vaccinatorFormData.autoSelect) {
+      container.appendChild(hr.cloneNode());
+
+      createCheckbox(
+        'vacinator-autobook-checkbox',
+        vaccinatorFormData.autoBook,
+        'Autobook (Bot will automatically book an available slot):',
+        container,
+        (value) => {
+          setVaccinatorFormData('autoBook', value);
+        }
+      );
+    }
 
     if (withError) {
       container.appendChild(hr.cloneNode());
