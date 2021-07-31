@@ -855,7 +855,7 @@ let vaccinatorFormData = {};
     createCheckbox(
       'vacinator-autoselect-checkbox',
       !vaccinatorFormData.autoSelect,
-      'Let Me Choose The Vaccination Centre:',
+      'Let Me Choose The Vaccination Center:',
       container,
       (value) => {
         const allowAutoSelect = !value;

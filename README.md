@@ -5,6 +5,7 @@ A browser extension for superfast automated booking of vaccine slots on [CoWIN](
 ## Installation
 
 ### Chrome web store
+
 [CoWIN: Vaccinator 💉](https://chrome.google.com/webstore/detail/cowin-vaccinator-%F0%9F%92%89/edjhnplefifonpibnpeieioopodfloio) is available on the [chrome web store](https://chrome.google.com/webstore/detail/cowin-vaccinator-%F0%9F%92%89/edjhnplefifonpibnpeieioopodfloio). Just click on **Add to Chrome** to add this extension to your browser.
 
 ### Manual install
@@ -38,7 +39,7 @@ In case the bot is stuck or behaves unexpectedly, stop the bot and try refreshin
 
 ![Autobook vaccine](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2a.jpg)
 
-![Let me choose vaccination centre](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2b.jpg)
+![Let me choose vaccination center](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2b.jpg)
 
 ![Dose 2 vaccine](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2c.jpg)
 
