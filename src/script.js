@@ -6,6 +6,7 @@ let vaccinatorFormData = {};
     };
   }
   vaccinatorFormData = {
+    autoSelect: true,
     autoBook: true,
     isCovaxin: true,
     isCovishield: true,
@@ -104,12 +105,6 @@ let vaccinatorFormData = {};
         options.addEventListener('click', (e) => {
           setVaccinatorFormData('district', (e.target.textContent || '').trim());
         });
-      });
-    });
-
-    waitForNode(() => document.querySelector("input[id='c1']")).then((age18Button) => {
-      age18Button.addEventListener('change', (e) => {
-        setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
       });
     });
 
@@ -294,7 +289,10 @@ let vaccinatorFormData = {};
   }
 
   async function selectVaccineType() {
-    if ((vaccinatorFormData.isCovaxin && vaccinatorFormData.isCovishield && vaccinatorFormData.isSputnik) || vaccinatorFormData.dose === 2) {
+    if (
+      (vaccinatorFormData.isCovaxin && vaccinatorFormData.isCovishield && vaccinatorFormData.isSputnik) ||
+      vaccinatorFormData.dose === 2
+    ) {
       return;
     }
     if (vaccinatorFormData.isCovaxin) {
@@ -356,8 +354,10 @@ let vaccinatorFormData = {};
   function selectSlot(slot, allLocations) {
     console.log('Trigger Notification');
     showNotification(`Available at ${slot.name} + ${allLocations.length - 1} other locations`);
-    slot.node.click();
-    book();
+    if (vaccinatorFormData.autoSelect) {
+      slot.node.click();
+      book();
+    }
   }
 
   async function filterSlots() {
@@ -751,7 +751,24 @@ let vaccinatorFormData = {};
         .map((_, i) => i + 1),
       container,
       (value) => {
-        setVaccinatorFormData('dose', +value);
+        const doseNumber = +value;
+        setVaccinatorFormData('dose', doseNumber);
+        const isSecondDose = doseNumber === 2;
+        const covishieldCheckBox = document.getElementById('vaccinator-isCovishield-checkbox');
+        const covaxinCheckBox = document.getElementById('vaccinator-isCovaxin-checkbox');
+        const sputnikCheckBox = document.getElementById('vaccinator-isSputnik-checkbox');
+
+        if (isSecondDose) {
+          setVaccinatorFormData('isCovishield', false);
+          setVaccinatorFormData('isCovaxin', false);
+          setVaccinatorFormData('isSputnik', false);
+          covishieldCheckBox.checked = false;
+          covaxinCheckBox.checked = false;
+          sputnikCheckBox.checked = false;
+        }
+        covishieldCheckBox.setAttribute('disabled', isSecondDose);
+        covaxinCheckBox.setAttribute('disabled', isSecondDose);
+        sputnikCheckBox.setAttribute('disabled', isSecondDose);
       }
     );
 
@@ -797,7 +814,7 @@ let vaccinatorFormData = {};
     container.appendChild(hr.cloneNode());
 
     createCheckbox(
-      'vaciinator-isFreeOnly-checkbox',
+      'vacinator-isFreeOnly-checkbox',
       vaccinatorFormData.isFreeOnly,
       'Only Free Vaccines:',
       container,
@@ -809,7 +826,23 @@ let vaccinatorFormData = {};
     container.appendChild(hr.cloneNode());
 
     createCheckbox(
-      'vaciinator-autobook-checkbox',
+      'vacinator-autoselect-checkbox',
+      vaccinatorFormData.autoSelect,
+      'Let me choose the vaccination centre:',
+      container,
+      (value) => {
+        setVaccinatorFormData('autoSelect', !value);
+        const autoBookCheckBox = document.getElementById('vacinator-autobook-checkbox');
+        if (value) {
+          setVaccinatorFormData('autoBook', false);
+          autoBookCheckBox.checked = false;
+        }
+        autoBookCheckBox.setAttribute('disabled', value);
+      }
+    );
+
+    createCheckbox(
+      'vacinator-autobook-checkbox',
       vaccinatorFormData.autoBook,
       'Autobook (Bot will automatically book an available slot):',
       container,
