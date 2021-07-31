@@ -36,7 +36,11 @@ In case the bot is stuck or behaves unexpectedly, stop the bot and try refreshin
 
 ![Fill in your details.](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-1.jpg)
 
-![Book my vaccine](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2.jpg)
+![Autobook vaccine](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2a.jpg)
+
+![Let me choose vaccination centre](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2b.jpg)
+
+![Dose 2 vaccine](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-2c.jpg)
 
 ![Bot Running...](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-3.jpg)
 
