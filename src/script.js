@@ -1,5 +1,9 @@
 let vaccinatorFormData = {};
 (async function () {
+  const maximumSearch = 19; // less search for safety
+  const maximumSearchInterval = 15.5 * 60 * 1000; // extra time for safety
+  let remainingSearch = maximumSearch;
+
   if (!window.Notification) {
     window.Notification = {
       mock: true,
@@ -14,14 +18,17 @@ let vaccinatorFormData = {};
     eighteenPlusOnly: true,
     memberNumber: 1,
     dose: 1,
+    searchTimeStamp: [],
     ...(await getData()),
   };
 
   if (vaccinatorFormData.start) {
     addPrimaryContainer('green', 'Bot Running...');
   } else {
-    addPrimaryContainer('red');
+    addPrimaryContainer('red', 'Start Bot');
   }
+
+  searchQuotaCron();
 
   let currentPinIndex = 0;
 
@@ -32,9 +39,9 @@ let vaccinatorFormData = {};
     const originalPageTitle = document.title;
     let interval1;
     let interval2;
-    const titleFlashFunction = () => {
+    const titleFlashFunction = (title) => {
       interval1 = setInterval(() => {
-        document.title = `CoWIN: Vaccinator 💉 vaccines found!!`;
+        document.title = title;
       }, 1000);
       setTimeout(() => {
         interval2 = setInterval(() => {
@@ -74,19 +81,22 @@ let vaccinatorFormData = {};
     } else if (currentPath.includes('dashboard')) {
       scheduleClick();
     } else if (currentPath === '/') {
+      if (logoutTimeout) {
+        window.location.reload();
+        return;
+      }
       enterMobile();
     } else {
       setTimeout(scheduleEvent, 100);
     }
-    setInterval(() => {
-      if (window.location.pathname === '/' && logoutTimeout) window.location.reload();
-    }, 5000);
   }
 
   async function collectData() {
     waitForNode(() => document.querySelector("input[formcontrolname='pincode']")).then((pinInput) => {
       pinInput.addEventListener('change', (e) => {
-        setVaccinatorFormData('pin', e.target.value);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('pin', e.target.value);
+        }
       });
     });
 
@@ -94,7 +104,9 @@ let vaccinatorFormData = {};
       stateField.addEventListener('click', async () => {
         const options = await waitForNode(() => document.querySelector("div[role='listbox']"));
         options.addEventListener('click', (e) => {
-          setVaccinatorFormData('state', (e.target.textContent || '').trim());
+          if (!vaccinatorFormData.start) {
+            setVaccinatorFormData('state', (e.target.textContent || '').trim());
+          }
         });
       });
     });
@@ -103,51 +115,67 @@ let vaccinatorFormData = {};
       districtField.addEventListener('click', async () => {
         const options = await waitForNode(() => document.querySelector("div[role='listbox']"));
         options.addEventListener('click', (e) => {
-          setVaccinatorFormData('district', (e.target.textContent || '').trim());
+          if (!vaccinatorFormData.start) {
+            setVaccinatorFormData('district', (e.target.textContent || '').trim());
+          }
         });
       });
     });
 
     waitForNode(() => document.querySelector("input[id='ca1']")).then((age1845Button) => {
       age1845Button.addEventListener('change', (e) => {
-        setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('eighteenPlusOnly', e.target.checked);
+        }
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c2']")).then((age45Button) => {
       age45Button.addEventListener('change', (e) => {
-        setVaccinatorFormData('eighteenPlusOnly', !e.target.checked);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('eighteenPlusOnly', !e.target.checked);
+        }
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c3']")).then((covishieldButton) => {
       covishieldButton.addEventListener('change', (e) => {
-        setVaccinatorFormData('isCovishield', e.target.checked);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('isCovishield', e.target.checked);
+        }
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c4']")).then((covaxinButton) => {
       covaxinButton.addEventListener('change', (e) => {
-        setVaccinatorFormData('isCovaxin', e.target.checked);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('isCovaxin', e.target.checked);
+        }
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c5']")).then((sputnikButton) => {
       sputnikButton.addEventListener('change', (e) => {
-        setVaccinatorFormData('isSputnik', e.target.checked);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('isSputnik', e.target.checked);
+        }
       });
     });
 
     waitForNode(() => document.querySelector("input[id='c7']")).then((freeButton) => {
       freeButton.addEventListener('change', (e) => {
-        setVaccinatorFormData('isFreeOnly', e.target.checked);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('isFreeOnly', e.target.checked);
+        }
       });
     });
 
     waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']")).then((mobileInput) => {
       console.log('CoWIN: Vaccinator 💉 watching mobile field');
       mobileInput.addEventListener('change', (e) => {
-        setVaccinatorFormData('mobileNo', e.target.value);
+        if (!vaccinatorFormData.start) {
+          setVaccinatorFormData('mobileNo', e.target.value);
+        }
       });
     });
   }
@@ -221,8 +249,6 @@ let vaccinatorFormData = {};
   }
 
   async function enterMobile() {
-    clearTimeout(logoutTimeout);
-    logoutTimeout = null;
     const input = await waitForNode(() => document.querySelector("input[formcontrolname='mobile_number']"));
     const mobileNumber = (vaccinatorFormData.mobileNo || '').trim();
     if (!mobileNumber) return;
@@ -235,10 +261,8 @@ let vaccinatorFormData = {};
   }
 
   async function enterOtp() {
-    loginOTPNotification();
+    showNotification('CoWIN: Vaccinator 💉 Login Again', 'Please enter OTP to login again');
     const otpInput = await waitForNode(() => document.querySelector("input[formcontrolname='otp']"));
-    clearTimeout(logoutTimeout);
-    logoutTimeout = null;
     otpInput.addEventListener('input', () => {
       if (otpInput.value.length === 6) {
         console.log('otp submitted');
@@ -353,22 +377,42 @@ let vaccinatorFormData = {};
 
   function selectSlot(slot, allLocations) {
     console.log('Trigger Notification');
-    showNotification(`Available at ${slot.name} + ${allLocations.length - 1} other locations`);
+    showNotification(
+      'CoWIN: Vaccinator 💉 Slots Available',
+      `Available at ${slot.name} + ${allLocations.length - 1} other locations`
+    );
     if (vaccinatorFormData.autoSelect) {
       slot.node.click();
       book();
     }
   }
 
-  async function filterSlots() {
+  async function filterSlots(restartAfterRateLimit) {
     if (window.location.pathname === '/') {
       window.location.reload();
       return;
     }
 
+    if (!remainingSearch) {
+      console.log('Search Quota Over');
+      const remainingTime =
+        maximumSearchInterval - (new Date().getTime() - vaccinatorFormData.searchTimeStamp[0]) + 11000; // 11 seconds buffer because cron runs every 10 secs
+      setTimeout(() => filterSlots(true), remainingTime);
+      const remainingMin = Math.ceil(remainingTime / 60000);
+      if (!restartAfterRateLimit) {
+        addPrimaryContainer('darkcyan', `Rate limit: Bot paused for ${remainingMin} mins`);
+      }
+      return;
+    }
+    if (restartAfterRateLimit) {
+      addPrimaryContainer('green', 'Bot Running...');
+    }
+
     console.log('filterSlots');
     const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0]);
+    searchButton.innerText = `Search (${remainingSearch - 1} left)`;
     searchButton.click();
+    reduceSearchQuota();
 
     const shouldProceed = await new Promise((resolve) => {
       setTimeout(() => {
@@ -431,7 +475,7 @@ let vaccinatorFormData = {};
       setTimeout(() => {
         console.log('searching again');
         if (window.location.pathname === '/') {
-          enterMobile();
+          window.location.reload();
           return;
         }
         if (vaccinatorFormData.start) {
@@ -446,34 +490,19 @@ let vaccinatorFormData = {};
   }
 
   function scheduleLogout() {
-    const logoutTimer = 870000; // 14.5 * 60000
+    const logoutTimer = 14.5 * 60000; // logout brfore 15 mins
     logoutTimeout = setTimeout(() => {
       waitForNode(() => document.getElementsByClassName('navigation logout-text')[0]).then((logoutButton) => {
         if (logoutTimeout === null || logoutTimeout === undefined) return;
         console.log('logout');
         logoutButton.click();
-        loginOTPNotification();
-        window.location.reload();
+        setTimeout(window.location.reload, 100);
       });
     }, logoutTimer);
   }
 
-  function loginOTPNotification() {
+  function showNotification(title, message) {
     if (Notification.mock) return;
-    const title = 'CoWIN: Vaccinator 💉 Login Again';
-    const icon = 'image-url';
-    const body = `Please enter OTP to login again`;
-    const notification = new Notification(title, { body, icon });
-    notification.onclick = () => {
-      notification.close();
-      window.parent.focus();
-      clearTitleFlash();
-    };
-  }
-
-  function showNotification(message) {
-    if (Notification.mock) return;
-    const title = 'CoWIN: Vaccinator 💉 Slots Available';
     const icon = 'image-url';
     const body = message;
     const notification = new Notification(title, { body, icon });
@@ -483,7 +512,7 @@ let vaccinatorFormData = {};
       clearTitleFlash();
     };
 
-    startTitleFlash();
+    startTitleFlash(title);
     if (!window.Audio) return;
     const audio = new Audio('https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/src/alert.mp3');
     audio
@@ -517,7 +546,7 @@ let vaccinatorFormData = {};
     return waitPromise;
   }
 
-  function addPrimaryContainer(background = 'red', message = 'Start Bot') {
+  function addPrimaryContainer(background, message) {
     const currentMainContainer = document.getElementById('cowin-vaccinator-main-container');
     if (currentMainContainer) currentMainContainer.remove();
     const container = document.createElement('div');
@@ -721,7 +750,7 @@ let vaccinatorFormData = {};
       }
     }, 100);
 
-    createLabel('Member Number On Dashboad:', 'vaccinator-member-number', container);
+    createLabel('Member Number On Dashboard:', 'vaccinator-member-number', container);
 
     createSelect(
       'vaccinator-member-number',
@@ -753,22 +782,11 @@ let vaccinatorFormData = {};
       (value) => {
         const doseNumber = +value;
         setVaccinatorFormData('dose', doseNumber);
-        const isSecondDose = doseNumber === 2;
-        const covishieldCheckBox = document.getElementById('vaccinator-isCovishield-checkbox');
-        const covaxinCheckBox = document.getElementById('vaccinator-isCovaxin-checkbox');
-        const sputnikCheckBox = document.getElementById('vaccinator-isSputnik-checkbox');
-
-        if (isSecondDose) {
-          setVaccinatorFormData('isCovishield', false);
-          setVaccinatorFormData('isCovaxin', false);
-          setVaccinatorFormData('isSputnik', false);
-          covishieldCheckBox.checked = false;
-          covaxinCheckBox.checked = false;
-          sputnikCheckBox.checked = false;
-        }
-        covishieldCheckBox.setAttribute('disabled', isSecondDose);
-        covaxinCheckBox.setAttribute('disabled', isSecondDose);
-        sputnikCheckBox.setAttribute('disabled', isSecondDose);
+        const isFirstDose = doseNumber !== 2;
+        setVaccinatorFormData('isCovishield', isFirstDose);
+        setVaccinatorFormData('isCovaxin', isFirstDose);
+        setVaccinatorFormData('isSputnik', isFirstDose);
+        displayForm(withError);
       }
     );
 
@@ -787,29 +805,38 @@ let vaccinatorFormData = {};
         setVaccinatorFormData('eighteenPlusOnly', value);
       }
     );
-    container.appendChild(hr.cloneNode());
 
-    createCheckbox(
-      'vaccinator-isCovishield-checkbox',
-      vaccinatorFormData.isCovishield,
-      'Covishield:',
-      container,
-      (value) => {
-        setVaccinatorFormData('isCovishield', value);
-      }
-    );
+    if (vaccinatorFormData.dose !== 2) {
+      container.appendChild(hr.cloneNode());
 
-    container.appendChild(hr.cloneNode());
+      createCheckbox(
+        'vaccinator-isCovishield-checkbox',
+        vaccinatorFormData.isCovishield,
+        'Covishield:',
+        container,
+        (value) => {
+          setVaccinatorFormData('isCovishield', value);
+        }
+      );
 
-    createCheckbox('vaccinator-isCovaxin-checkbox', vaccinatorFormData.isCovaxin, 'Covaxin:', container, (value) => {
-      setVaccinatorFormData('isCovaxin', value);
-    });
+      container.appendChild(hr.cloneNode());
 
-    container.appendChild(hr.cloneNode());
+      createCheckbox('vaccinator-isCovaxin-checkbox', vaccinatorFormData.isCovaxin, 'Covaxin:', container, (value) => {
+        setVaccinatorFormData('isCovaxin', value);
+      });
 
-    createCheckbox('vaccinator-isSputnik-checkbox', vaccinatorFormData.isSputnik, 'Sputnik V:', container, (value) => {
-      setVaccinatorFormData('isSputnik', value);
-    });
+      container.appendChild(hr.cloneNode());
+
+      createCheckbox(
+        'vaccinator-isSputnik-checkbox',
+        vaccinatorFormData.isSputnik,
+        'Sputnik V:',
+        container,
+        (value) => {
+          setVaccinatorFormData('isSputnik', value);
+        }
+      );
+    }
 
     container.appendChild(hr.cloneNode());
 
@@ -827,29 +854,30 @@ let vaccinatorFormData = {};
 
     createCheckbox(
       'vacinator-autoselect-checkbox',
-      vaccinatorFormData.autoSelect,
-      'Let me choose the vaccination centre:',
+      !vaccinatorFormData.autoSelect,
+      'Let Me Choose The Vaccination Center:',
       container,
       (value) => {
-        setVaccinatorFormData('autoSelect', !value);
-        const autoBookCheckBox = document.getElementById('vacinator-autobook-checkbox');
-        if (value) {
-          setVaccinatorFormData('autoBook', false);
-          autoBookCheckBox.checked = false;
-        }
-        autoBookCheckBox.setAttribute('disabled', value);
+        const allowAutoSelect = !value;
+        setVaccinatorFormData('autoSelect', allowAutoSelect);
+        setVaccinatorFormData('autoBook', allowAutoSelect);
+        displayForm(withError);
       }
     );
 
-    createCheckbox(
-      'vacinator-autobook-checkbox',
-      vaccinatorFormData.autoBook,
-      'Autobook (Bot will automatically book an available slot):',
-      container,
-      (value) => {
-        setVaccinatorFormData('autoBook', value);
-      }
-    );
+    if (vaccinatorFormData.autoSelect) {
+      container.appendChild(hr.cloneNode());
+
+      createCheckbox(
+        'vacinator-autobook-checkbox',
+        vaccinatorFormData.autoBook,
+        'Autobook (Bot will automatically book an available slot):',
+        container,
+        (value) => {
+          setVaccinatorFormData('autoBook', value);
+        }
+      );
+    }
 
     if (withError) {
       container.appendChild(hr.cloneNode());
@@ -889,7 +917,7 @@ let vaccinatorFormData = {};
           scheduleEvent();
           addPrimaryContainer('green', 'Bot Running...');
         } else {
-          addPrimaryContainer('red');
+          addPrimaryContainer('red', 'Start Bot');
         }
       }
       container.remove();
@@ -936,5 +964,25 @@ let vaccinatorFormData = {};
       }
       resolve(JSON.parse(data));
     });
+  }
+
+  function reduceSearchQuota() {
+    setVaccinatorFormData(
+      'searchTimeStamp',
+      vaccinatorFormData.searchTimeStamp.slice(1 - maximumSearch).concat(new Date().getTime())
+    );
+    if (remainingSearch) {
+      remainingSearch -= 1;
+    }
+  }
+
+  function searchQuotaCron() {
+    const currentTimeStamp = new Date().getTime();
+    const searchaTimeStamp = vaccinatorFormData.searchTimeStamp.filter(
+      (timestamp) => currentTimeStamp - timestamp < maximumSearchInterval
+    );
+    remainingSearch = maximumSearch - searchaTimeStamp.length;
+    setVaccinatorFormData('searchTimeStamp', searchaTimeStamp);
+    setTimeout(searchQuotaCron, 10000);
   }
 })();
