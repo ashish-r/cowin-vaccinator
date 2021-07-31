@@ -42,7 +42,7 @@ In case the bot is stuck or behaves unexpectedly, stop the bot and try refreshin
 
 ![Vaccine found submit now](https://raw.githubusercontent.com/ashish-r/cowin-vaccinator/main/screenshots/cowin-screenshot-4.jpg)
 
-## Build
+## Development
 
 Clone the repository from [github.com/ashish-r/cowin-vaccinator](https://github.com/ashish-r/cowin-vaccinator). [![DeepScan grade](https://deepscan.io/api/teams/10012/projects/17476/branches/401367/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10012&pid=17476&bid=401367)
 
