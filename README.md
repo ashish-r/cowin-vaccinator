@@ -37,31 +37,48 @@ All the data provided by you always stay on your computer. It is not stored/shar
 ### Advanced Features
 
 #### Superfast login
+
 The bot saves your mobile number so, in case of log out, you only need to provide the OTP for a superfast login experience.
 
 #### Multiple Pin Code
-You can enter multiple comma(,) separated pin codes. The bot will search for the vaccine availability at all provided pin codes one by one. 
+
+You can enter multiple comma(,) separated pin codes. The bot will search for the vaccine availability at all provided pin codes one by one.
 
 #### Search By State & District
+
 You can also search for vaccine availability with State & District. You can only search with pin codes or state and district.
 
 #### Multi-User Accounts
+
 The bot supports accounts with multiple registered members. You need to select the correct Member Number On Dashboard. Example: If you have 3 registered members in one account, you can use this bot to book vaccines for all the 3 members one by one. You just need to provide the correct member number(the order in which they are present on the dashboard) for every member on the dashboard.
 
 #### Dose 2
+
 The bot also supports automated superfast booking for the second dose of vaccine.
 
 #### Vaccine Preference
+
 You can select the vaccine type from Covishield / Covaxin / Sputnik. You can also limit your search for only free vaccines.
 
 #### Choose Vaccine Centre
-If Let Me Choose The Vaccination Center is checked, the bot will hide all unavailable slots so you can choose the vaccine center from the list of all available centers, based on your preference. 
+
+If Let Me Choose The Vaccination Center is checked, the bot will hide all unavailable slots so you can choose the vaccine center from the list of all available centers, based on your preference.
 
 #### Autobook
+
 If Autobook is selected, the bot will automatically select the available vaccination center and a time slot to autocomplete the booking for you.
 
+#### Retry Interval
+
+The interval after which the bot should retry searching. CoWIN allows 20 searches within 15 mins, please provide this value responsibly.
+
 #### Rate Limit Pause
-The bot automatically pauses after it reaches the 20 search rate limit in 15 mins and it automatically continues after the cool-down period.
+
+If selected, the bot automatically pauses after it reaches the 20 search rate limit in 15 mins and it automatically continues after the cool-down period.
+
+#### Audio Alerts
+
+You get audio alerts when a slot is found or when you need to enter your OTP so that you never miss the opportunity to book a slot.
 
 ## Screenshots
 

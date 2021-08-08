@@ -1,6 +1,6 @@
 {
   "name": "cowin-vaccinator",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "CoWIN: Vaccinator 💉 A browser extension for superfast automated booking of vaccine slots on CoWIN",
   "main": "script.js",
   "scripts": {
