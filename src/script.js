@@ -1,7 +1,9 @@
 let vaccinatorFormData = {};
 (async function () {
-  const maximumSearch = 19; // less search for safety
-  const maximumSearchInterval = 15.5 * 60 * 1000; // extra time for safety
+  const maximumSearch = 7;
+  const maximumSearchIntervalLimit = 15;
+  const maximumSearchInterval = (maximumSearchIntervalLimit + 0.2) * 60 * 1000; // extra time for safety
+  const defaultRetryInterval = Math.ceil((maximumSearchInterval * 60) / maximumSearch);
   let remainingSearch = maximumSearch;
 
   if (!window.Notification) {
@@ -19,6 +21,8 @@ let vaccinatorFormData = {};
     memberNumber: 1,
     dose: 1,
     searchTimeStamp: [],
+    rateLimit: false,
+    retryInterval: defaultRetryInterval,
     ...(await getData()),
   };
 
@@ -376,42 +380,37 @@ let vaccinatorFormData = {};
   }
 
   function selectSlot(slot, allLocations) {
-    console.log('Trigger Notification');
-    showNotification(
-      'CoWIN: Vaccinator 💉 Slots Available',
-      `Available at ${slot.name} + ${allLocations.length - 1} other locations`
-    );
     if (vaccinatorFormData.autoSelect) {
       slot.node.click();
       book();
     }
+    showNotification(
+      'CoWIN: Vaccinator 💉 Slots Available',
+      `Available at ${slot.name} + ${allLocations.length - 1} other locations`
+    );
   }
 
-  async function filterSlots(restartAfterRateLimit) {
+  async function filterSlots() {
     if (window.location.pathname === '/') {
       window.location.reload();
       return;
     }
 
-    if (!remainingSearch) {
+    if (vaccinatorFormData.rateLimit && remainingSearch <= 0) {
       console.log('Search Quota Over');
       const remainingTime =
         maximumSearchInterval - (new Date().getTime() - vaccinatorFormData.searchTimeStamp[0]) + 11000; // 11 seconds buffer because cron runs every 10 secs
-      setTimeout(() => filterSlots(true), remainingTime);
       const remainingMin = Math.ceil(remainingTime / 60000);
-      if (!restartAfterRateLimit) {
-        addPrimaryContainer('darkcyan', `Rate limit: Bot paused for ${remainingMin} mins`);
-      }
+      addPrimaryContainer('darkcyan', `Rate limit: Bot paused for ${remainingMin} mins`);
+      setTimeout(filterSlots, vaccinatorFormData.retryInterval * 1000);
       return;
     }
-    if (restartAfterRateLimit) {
-      addPrimaryContainer('green', 'Bot Running...');
-    }
+    addPrimaryContainer('green', 'Bot Running...');
 
     console.log('filterSlots');
     const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0]);
-    searchButton.innerText = `Search (${remainingSearch - 1} left)`;
     searchButton.click();
+    searchButton.innerText = `Search (${remainingSearch - 1} left)`;
     reduceSearchQuota();
 
     const shouldProceed = await new Promise((resolve) => {
@@ -419,8 +418,9 @@ let vaccinatorFormData = {};
         if (document.querySelector('.error-text')) {
           locationDetails();
           resolve(false);
+        } else {
+          resolve(true);
         }
-        resolve(true);
       }, 500);
     });
 
@@ -485,7 +485,7 @@ let vaccinatorFormData = {};
             filterSlots();
           }
         }
-      }, 5500);
+      }, vaccinatorFormData.retryInterval * 1000);
     }, 100);
   }
 
@@ -503,6 +503,7 @@ let vaccinatorFormData = {};
 
   function showNotification(title, message) {
     if (Notification.mock) return;
+    console.log('Trigger Notification');
     const icon = 'image-url';
     const body = message;
     const notification = new Notification(title, { body, icon });
@@ -576,6 +577,7 @@ let vaccinatorFormData = {};
       label.appendChild(document.createTextNode(labelText));
       label.setAttribute('style', `padding-right: 10px;`);
       containerEl.appendChild(label);
+      return label;
     };
     const createCheckbox = (id, value, labelText, containerEl, onChange) => {
       const checkbox = document.createElement('input');
@@ -589,6 +591,7 @@ let vaccinatorFormData = {};
         onChange(e.target.checked);
       });
       containerEl.appendChild(checkbox);
+      return checkbox;
     };
 
     const createInputField = (id, value, placeholder, containerEl, onChange) => {
@@ -603,6 +606,7 @@ let vaccinatorFormData = {};
         onChange(e.target.value);
       });
       containerEl.appendChild(input);
+      return input;
     };
 
     const createSelectOption = (selectItem, data, placeholder) => {
@@ -635,6 +639,7 @@ let vaccinatorFormData = {};
       });
 
       containerEl.appendChild(selectList);
+      return selectList;
     };
 
     const currentFormContainer = document.getElementById('cowin-vaccinator-form-container');
@@ -879,6 +884,32 @@ let vaccinatorFormData = {};
       );
     }
 
+    container.appendChild(hr.cloneNode());
+    createLabel(
+      `Retry Interval (${maximumSearch} searches within ${maximumSearchIntervalLimit} mins allowed):`,
+      'vaccinator-retryinterval',
+      container
+    );
+    const searchIntervalInput = createInputField(
+      'vaccinator-retryinterval',
+      vaccinatorFormData.retryInterval,
+      'seconds',
+      container,
+      (value) => setVaccinatorFormData('retryInterval', +(value || '').trim() || defaultRetryInterval)
+    );
+    searchIntervalInput.style.width = '90px';
+
+    container.appendChild(hr.cloneNode());
+    createCheckbox(
+      'vacinator-ratelimit-checkbox',
+      vaccinatorFormData.rateLimit,
+      `Rate Limit (Pause bot if ${maximumSearch} searches reached before ${maximumSearchIntervalLimit} mins):`,
+      container,
+      (value) => {
+        setVaccinatorFormData('rateLimit', value);
+      }
+    );
+
     if (withError) {
       container.appendChild(hr.cloneNode());
       const error = document.createElement('div');
@@ -924,9 +955,8 @@ let vaccinatorFormData = {};
     });
     container.appendChild(submitButton);
 
-    container.appendChild(hr.cloneNode());
-
     const cancelButton = button.cloneNode();
+    cancelButton.style.marginLeft = '50px';
     cancelButton.appendChild(document.createTextNode('Close'));
     cancelButton.addEventListener('click', () => {
       console.log('Hide form');
@@ -967,10 +997,7 @@ let vaccinatorFormData = {};
   }
 
   function reduceSearchQuota() {
-    setVaccinatorFormData(
-      'searchTimeStamp',
-      vaccinatorFormData.searchTimeStamp.slice(1 - maximumSearch).concat(new Date().getTime())
-    );
+    setVaccinatorFormData('searchTimeStamp', vaccinatorFormData.searchTimeStamp.concat(new Date().getTime()));
     if (remainingSearch) {
       remainingSearch -= 1;
     }
