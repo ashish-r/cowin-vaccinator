@@ -401,12 +401,15 @@ let vaccinatorFormData = {};
       const remainingTime =
         maximumSearchInterval - (new Date().getTime() - vaccinatorFormData.searchTimeStamp[0]) + 11000; // 11 seconds buffer because cron runs every 10 secs
       const remainingMin = Math.ceil(remainingTime / 60000);
-      addPrimaryContainer('darkcyan', `Rate limit: Bot paused for ${remainingMin} mins`);
+      if (vaccinatorFormData.start) {
+        addPrimaryContainer('darkcyan', `Rate limit: Bot paused for ${remainingMin} mins`);
+      }
       setTimeout(filterSlots, vaccinatorFormData.retryInterval * 1000);
       return;
     }
-    addPrimaryContainer('green', 'Bot Running...');
-
+    if (vaccinatorFormData.start) {
+      addPrimaryContainer('green', 'Bot Running...');
+    }
     console.log('filterSlots');
     const searchButton = await waitForNode(() => document.getElementsByTagName('ion-button')[0]);
     searchButton.click();
