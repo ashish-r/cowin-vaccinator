@@ -78,7 +78,7 @@ If selected, the bot automatically pauses after it reaches the 20 search rate li
 
 #### Audio Alerts
 
-You get audio alerts when a slot is found or when you need to enter your OTP so that you never miss the opportunity to book a slot.
+You get an audio alert when a slot is found or when you need to enter your OTP so that you never miss the opportunity to book a slot.
 
 ## Screenshots
 
