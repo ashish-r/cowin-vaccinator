@@ -1,6 +1,6 @@
 let vaccinatorFormData = {};
 (async function () {
-  const maximumSearch = 7;
+  const maximumSearch = 20;
   const maximumSearchIntervalLimit = 15;
   const maximumSearchInterval = (maximumSearchIntervalLimit + 0.2) * 60 * 1000; // extra time for safety
   const defaultRetryInterval = Math.ceil((maximumSearchIntervalLimit * 60) / maximumSearch);
